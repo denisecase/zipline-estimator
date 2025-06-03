@@ -4,7 +4,7 @@
   "cableDropFeet": 4,
   "seatDropFeet": 3.5,
   "clearanceFeet": 2,
-  "initialEndAnchorHeightFeet": 11.2,
+  "initialEndAnchorHeightFeet": 12,
   "transitionPointRatio": 70,
   "earlySlopeRatio": 35,
   "riderWeightLbs": 250,
