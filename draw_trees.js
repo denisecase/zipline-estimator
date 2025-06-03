@@ -1,9 +1,9 @@
 import { createLine, createCircle, createText } from "./draw_utils.js";
 
-const XOFFSET_START = 5;
+const XOFFSET_START = 7;
 const XOFFSET_END = 120;
 const YOFFSET_HT = 20;
-const YOFFSET_DELTA = 40;
+const YOFFSET_DELTA = 50;
 
 export function getGroundStartY({ axisY }) {
   return axisY;
@@ -82,21 +82,21 @@ export function drawStartTree({
   // Draw tree top
   svg.appendChild(createCircle(startX, trunkTopY, 10, "green"));
 
-  // // Label: Start Anchor height above End Ground
-  // labelStartAnchorHeightAboveGroundEnd(
-  //   svg,
-  //   startX,
-  //   anchorStartY,
-  //   startAnchorAboveEndGroundFeet
-  // );
+  // Label: Start Anchor height above End Ground
+  labelStartAnchorHeightAboveGroundEnd(
+    svg,
+    startX,
+    anchorStartY,
+    startAnchorAboveEndGroundFeet
+  );
 
-  // // Label: Start Anchor height above Start Ground
-  // labelStartAnchorHeightAboveGroundStart(
-  //   svg,
-  //   startX,
-  //   anchorStartY,
-  //   startAnchorAboveStartGroundFeet
-  // );
+  // Label: Start Anchor height above Start Ground
+  labelStartAnchorHeightAboveGroundStart(
+    svg,
+    startX,
+    anchorStartY,
+    startAnchorAboveStartGroundFeet
+  );
 
   // Label: Anchor delta (Start Anchor vs End Anchor)
   labelStartAnchorToAnchorDelta(svg, startX, anchorStartY, cableDropFeet);
