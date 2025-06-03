@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <title>Zipline Estimator</title>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-  <base href="/zipline-estimator/">
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -26,32 +25,32 @@
       </label>
 
       <label>
-        Cable Drop from Start to End (ft):
+        Desired Cable Drop from Start to End (ft):
         <input v-model.number="cableDropFeet" type="number" value="4" />
         <br><small>How much lower the end anchor is compared to the start anchor.</small>
       </label>
 
       <label>
-        Sag Percent (%):
-        <input v-model.number="sagPercent" type="number" value="4" />
+        Sag Percent (%): {{ sagPercent.toFixed(1) }}
+        <input v-model.number="sagPercent" type="range" min="0" max="10" step="0.1" />
         <br><small>Estimated midpoint sag from tension and rider weight.</small>
       </label>
 
       <label>
-        Seat to Cable Distance (ft):
-        <input v-model.number="seatDropFeet" type="number" value="3.5" />
+        Seat to Cable Distance (ft): {{ seatDropFeet.toFixed(1) }}
+        <input v-model.number="seatDropFeet" type="range" min="2" max="6" step="0.1" />
         <br><small>From cable to center of seat or harness.</small>
       </label>
 
       <label>
-        Desired Seat Clearance (ft):
-        <input v-model.number="clearanceFeet" type="number" value="2" />
+        Desired Seat Clearance (ft): {{ clearanceFeet.toFixed(1) }}
+        <input v-model.number="clearanceFeet" type="range" min="0.5" max="4" step="0.1" />
         <br><small>Minimum desired clearance from seat bottom to ground.</small>
       </label>
 
       <label>
-        Initial End Anchor Height (ft):
-        <input v-model.number="initialEndAnchorHeightFeet" type="number" value="7.0" />
+        Initial End Anchor Height (ft): {{ initialEndAnchorHeightFeet.toFixed(1) }}
+        <input v-model.number="initialEndAnchorHeightFeet" type="range" min="4" max="12" step="0.2" />
         <br><small>The starting height of the end anchor above the end ground.</small>
       </label>
     </div>
