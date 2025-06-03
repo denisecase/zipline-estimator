@@ -4,5 +4,6 @@
   "cableDropFeet": 4,
   "sagPercent": 4,
   "seatDropFeet": 3.5,
-  "clearanceFeet": 2
+  "clearanceFeet": 2,
+  "initialEndAnchorHeightFeet":7.0
 }

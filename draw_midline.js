@@ -20,14 +20,25 @@ export function drawSeatAssembly(
   const ropeHeight = seatDropFeet * pixelsPerFoot;
   const clearanceHeight = clearanceFeet * pixelsPerFoot;
   const seatY = midY + ropeHeight;
+  const seatWidth = 10; // 1 foot
+  const seatHeight = 2; // ~2 inches
+
+  console.log("drawSeatAssembly values", {
+  midY,
+  seatDropFeet,
+  clearanceFeet,
+  ropeHeight,
+  seatHeight,
+  clearanceHeight,
+  totalHeight: ropeHeight + seatHeight + clearanceHeight
+});
 
   // 1. Rope (orange vertical rect from cable to seat)
   svg.appendChild(createRect(seatX - 2, midY, 4, ropeHeight, "orange"));
   svg.appendChild(createText(seatX + 6, seatY - 10, `Rope (${seatDropFeet }ft)`));
 
   // 2. Seat (blue horizontal 1ft × 2in)
-  const seatWidth = 10; // 1 foot
-  const seatHeight = 2; // ~2 inches
+
   svg.appendChild(
     createRect(
       seatX - seatWidth / 2,

@@ -1,4 +1,5 @@
-import { drawZipline } from './draw.js';
+// app.js
+import { drawZipline } from './app_controller.js';
 import {
   computeSag,
   computeVelocity,
@@ -19,7 +20,8 @@ export function startApp() {
         cableDropFeet: 4,
         sagPercent: 4,
         seatDropFeet: 3.5,
-        clearanceFeet: 2
+        clearanceFeet: 2,
+        initialEndAnchorHeightFeet: 7,
       });
     });
 
@@ -51,7 +53,8 @@ export function startApp() {
         cableDropFeet: 'updateDrawing',
         sagPercent: 'updateDrawing',
         seatDropFeet: 'updateDrawing',
-        clearanceFeet: 'updateDrawing'
+        clearanceFeet: 'updateDrawing',
+        initialEndAnchorHeightFeet: 'updateDrawing'
       },
       mounted() {
         this.updateDrawing();
@@ -64,7 +67,8 @@ export function startApp() {
             cableDropFeet: this.cableDropFeet,
             sagFeet: this.sagFeet,
             seatDropFeet: this.seatDropFeet,
-            clearanceFeet: this.clearanceFeet
+            clearanceFeet: this.clearanceFeet,
+            initialEndAnchorHeightFeet: this.initialEndAnchorHeightFeet
           });
         }
       }

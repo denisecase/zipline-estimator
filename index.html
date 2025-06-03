@@ -47,6 +47,13 @@
         <input v-model.number="clearanceFeet" type="number" value="2" />
         <br><small>Minimum desired clearance from seat bottom to ground.</small>
       </label>
+
+            <label>
+        Initial End Anchor Height (ft):
+        <input v-model.number="initialEndAnchorHeightFeet" type="number" value="7.0" />
+        <br><small>The starting height of the end anchor above the end ground.</small>
+      </label>
+      </div>
     </div>
 
     <svg id="zipline-diagram" width="800" height="300"></svg>
@@ -58,7 +65,7 @@
     </div>
 
     <div class="warning">
-      ⚠️ This tool is for visualization only. Always consult a qualified professional before installing a zipline.
+      ⚠️ This tool is for fun ONLY. Always consult a qualified professional before installing a zipline.
     </div>
   </div>
 
