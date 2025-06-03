@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Zipline Estimator</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="app">
+    <h1>Zipline Estimator</h1>
+
+    <div class="inputs">
+      <label>
+        Horizontal Run Distance (ft):
+        <input v-model.number="runFeet" type="number" value="81" />
+      </label>
+
+      <label>
+        Ground Slope Drop (ft):
+        <input v-model.number="slopeDeltaFeet" type="number" value="3.5" />
+        <br><small>How much lower Tree 2 is compared to Tree 1 base.</small>
+      </label>
+
+      <label>
+        Cable Drop from Start to End (ft):
+        <input v-model.number="cableDropFeet" type="number" value="4" />
+        <br><small>How much lower the end anchor is compared to the start anchor.</small>
+      </label>
+
+      <label>
+        Sag Percent (%):
+        <input v-model.number="sagPercent" type="number" value="4" />
+        <br><small>Estimated midpoint sag from tension and rider weight.</small>
+      </label>
+
+      <label>
+        Seat to Cable Distance (ft):
+        <input v-model.number="seatDropFeet" type="number" value="3.5" />
+        <br><small>From cable to center of seat or harness.</small>
+      </label>
+
+      <label>
+        Desired Seat Clearance (ft):
+        <input v-model.number="clearanceFeet" type="number" value="2" />
+        <br><small>Minimum desired clearance from seat bottom to ground.</small>
+      </label>
+    </div>
+
+    <svg id="zipline-diagram" width="800" height="300"></svg>
+
+    <div class="output">
+      <p>Max Drop: {{ maxDropFeet.toFixed(2) }} ft</p>
+      <p>Estimated Max Velocity: {{ velocityMilesPerHour.toFixed(1) }} mph ({{ velocityFeetPerSecond.toFixed(1) }} ft/s)</p>
+      <p>Estimated Ride Time: {{ rideTimeSeconds.toFixed(1) }} sec</p>
+    </div>
+
+    <div class="warning">
+      ⚠️ This tool is for visualization only. Always consult a qualified professional before installing a zipline.
+    </div>
+  </div>
+
+  <div id="test-results"></div>
+  <script type="module" src="main.js"></script>
+  <script type="module" src="test.js"></script>
+</body>
+
+</html>
