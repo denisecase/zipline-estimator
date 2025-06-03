@@ -18,7 +18,7 @@ const DEFAULT_MAX_HEIGHT_FEET = 40;
 const DEFAULT_VERTICAL_MAJOR_TICK_INTERVAL = 10;
 const DEFAULT_VERTICAL_MINOR_TICK_INTERVAL = 2;
 const VERTICAL_AXIS_LABEL_TEXT = "Elevation";
-const XOFFSET_RIGHT_VERTICAL = 40;
+
 
 function drawHorizontalAxis(svg, startX, axisY, endX, runFeet, pixelsPerFoot) {
   svg.appendChild(createLine(startX, axisY, endX, axisY, AXIS_COLOR, AXIS_STROKE_WIDTH));

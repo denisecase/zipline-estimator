@@ -5,7 +5,6 @@ import { drawSeatAssembly, drawMidlineLabel } from "./draw_midline.js";
 import { drawStartTree, drawEndTree } from "./draw_trees.js";
 import { drawGround, labelGroundSlopeAtStart } from "./draw_ground.js";
 import { calculateZiplineGeometry } from "./calcs.js";
-import { createText } from "./draw_utils.js";
 
 export function drawZipline({
   runFeet,
