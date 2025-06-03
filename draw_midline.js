@@ -67,6 +67,6 @@ export function drawMidlineLabel(
   midX
 ) {
   const totalDropFeet = sagFeet + seatDropFeet + clearanceFeet;
-  const totalDropText = `Midline Drop = ${totalDropFeet.toFixed(1)} ft = sag (${sagFeet.toFixed(1)}) + rope (${seatDropFeet.toFixed(1)}) + clearance (${clearanceFeet.toFixed(1)})`;
-  svg.appendChild(createText(midX-100, midY - 40, totalDropText));
+  const totalDropText = `Max=${totalDropFeet.toFixed(1)}ft = sag (${sagFeet.toFixed(1)}) + rope (${seatDropFeet.toFixed(1)}) + clearance (${clearanceFeet.toFixed(1)})`;
+  svg.appendChild(createText(midX-45, midY - 40, totalDropText));
 }

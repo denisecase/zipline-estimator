@@ -30,7 +30,9 @@ input[type="number"] {
   color: red;
   font-size: 0.95em;
   border-top: 1px dashed #aaa;
+  border-bottom: 1px dashed #aaa;
   padding-top: 1em;
+  padding-bottom: 1em;
 }
 
 #zipline-diagram {

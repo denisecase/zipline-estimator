@@ -2,8 +2,22 @@
   "runFeet": 81,
   "slopeDeltaFeet": 3.5,
   "cableDropFeet": 4,
-  "sagPercent": 4,
   "seatDropFeet": 3.5,
   "clearanceFeet": 2,
-  "initialEndAnchorHeightFeet":8.5
+  "initialEndAnchorHeightFeet": 11.2,
+  "transitionPointRatio": 100,
+  "earlySlopeRatio": 100,
+  "riderWeightLbs": 250,
+  "riderSagTable": [
+    {
+      "rider_weight_lbs": 60,
+      "sag_point_percent": 41,
+      "sag_vertical_ft": 5.2
+    },
+    {
+      "rider_weight_lbs": 250,
+      "sag_point_percent": 44,
+      "sag_vertical_ft": 6.2
+    }
+  ]
 }

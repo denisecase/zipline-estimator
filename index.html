@@ -11,29 +11,48 @@
 <body>
   <div id="app">
     <h1>Zipline Estimator</h1>
-
+    <div class="warning">
+      ⚠️ This tool is for fun ONLY. Always consult a qualified professional before installing a zipline.
+    </div>
     <div class="inputs">
       <label>
-        Horizontal Run Distance (ft):
-        <input v-model.number="runFeet" type="number" value="81" />
+        Horizontal Run Distance (ft): {{ runFeet.toFixed(0) }}
+        <input v-model.number="runFeet" type="range" min="20" max="150" step="1" />
+        <br><small>Length between the two anchor points. Max recommended is 150 ft.</small>
       </label>
 
       <label>
-        Ground Slope Drop (ft):
-        <input v-model.number="slopeDeltaFeet" type="number" value="3.5" />
+        Ground Slope Drop (ft): {{ slopeDeltaFeet.toFixed(1) }}
+        <input v-model.number="slopeDeltaFeet" type="range" min="0" max="7" step="0.1" />
         <br><small>How much lower Tree 2 is compared to Tree 1 base.</small>
       </label>
 
+      <div style="padding-left: 1.5em;">
+
+        <label>
+          Optional: Transition point (% of run): {{ transitionPointRatio }}%
+          <input v-model.number="transitionPointRatio" type="range" min="10" max="90" step="1" />
+          <br><small>Where along the run the slope transition occurs.</small>
+        </label>
+
+        <label>
+          Optional: Early slope (% of total slope before transition): {{ earlySlopeRatio }}%
+          <input v-model.number="earlySlopeRatio" type="range" min="0" max="100" step="1" />
+          <br><small>How much of the slope is used before the transition point.</small>
+        </label>
+      </div>
+
+
       <label>
-        Desired Cable Drop from Start to End (ft):
-        <input v-model.number="cableDropFeet" type="number" value="4" />
+        Desired Cable Drop from Start to End (ft): {{ cableDropFeet.toFixed(1) }}
+        <input v-model.number="cableDropFeet" type="range" min="0" max="7" step="0.1" />
         <br><small>How much lower the end anchor is compared to the start anchor.</small>
       </label>
 
       <label>
-        Sag Percent (%): {{ sagPercent.toFixed(1) }}
-        <input v-model.number="sagPercent" type="range" min="0" max="10" step="0.1" />
-        <br><small>Estimated midpoint sag from tension and rider weight.</small>
+        Rider Weight (lbs): {{ selectedRiderWeight }}
+        <input v-model.number="selectedRiderWeight" type="range" min="60" max="250" step="1" />
+        <br><small>Used to estimate sag amount and sag point location based on rider weight.</small>
       </label>
 
       <label>
@@ -54,24 +73,37 @@
         <br><small>The starting height of the end anchor above the end ground.</small>
       </label>
     </div>
-  </div>
 
-  <svg id="zipline-diagram" width="800" height="300"></svg>
 
-  <div class="output">
-    <p>Max Drop: {{ maxDropFeet.toFixed(2) }} ft</p>
-    <p>Estimated Max Velocity: {{ velocityMilesPerHour.toFixed(1) }} mph ({{ velocityFeetPerSecond.toFixed(1) }} ft/s)
-    </p>
-    <p>Estimated Ride Time: {{ rideTimeSeconds.toFixed(1) }} sec</p>
-  </div>
+    <svg id="zipline-diagram" width="800" height="300"></svg>
 
-  <div class="warning">
-    ⚠️ This tool is for fun ONLY. Always consult a qualified professional before installing a zipline.
+    <div class="output">
+      <p>Max Drop: {{ maxDropFeet.toFixed(2) }} ft</p>
+      <p>Estimated Max Velocity: {{ velocityMilesPerHour.toFixed(1) }} mph ({{ velocityFeetPerSecond.toFixed(1) }} ft/s)
+      </p>
+      <p>Estimated Ride Time: {{ rideTimeSeconds.toFixed(1) }} sec</p>
+    </div>
+
+
   </div>
+  <div class="github-link">
+    <a href="https://github.com/denisecase/zipline-estimator" target="_blank" title="View Source on GitHub">
+      <svg height="24" width="24" viewBox="0 0 16 16" fill="black" aria-hidden="true">
+        <path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 005.47 7.59c.4.07.55-.17.55-.38 
+        0-.19-.01-.82-.01-1.49-2 .37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52 
+        0-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07 
+        -1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.01.08-2.11 
+        0 0 .67-.21 2.2.82a7.62 7.62 0 012 0c1.53-1.03 2.2-.82 2.2-.82 
+        .44 1.1.16 1.91.08 2.11.51.56.82 1.27.82 2.15 
+        0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 
+        0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8 
+        c0-4.42-3.58-8-8-8z" />
+      </svg>
+    </a>
   </div>
 
   <div id="test-results"></div>
-  <script type="module" src="./main.js"></script>
+  <script type="module" src="./main.js" defer></script>
   <script type="module" src="./test.js"></script>
 </body>
 

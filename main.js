@@ -1,3 +1,4 @@
+// main.js
 // Only add <base> tag if hosted on GitHub Pages
 if (location.hostname === 'denisecase.github.io') {
   const base = document.createElement('base');

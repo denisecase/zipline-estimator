@@ -1,18 +1,29 @@
-
 import { createLine, createCircle, createText } from "./draw_utils.js";
 
 export function drawCable(
   svg,
   startX,
   anchorStartY,
-  midX,
-  midY,
   endX,
-  anchorEndY
+  anchorEndY,
+  runFeet,
+  pixelsPerFoot,
+  sagFeet = null,
+  sagPointPercent = null
 ) {
-  svg.appendChild(createLine(startX, anchorStartY, midX, midY, "black", 2));
-  svg.appendChild(createLine(midX, midY, endX, anchorEndY, "black", 2));
-  svg.appendChild(createCircle(midX, midY, 3, "red"));
-  svg.appendChild(createText(midX, midY - 20, "Cable Sag Point"));
-}
+  const fromStartPercent = sagPointPercent !== null ? 100 - sagPointPercent : 50;
+  const sagX = startX + (runFeet * (fromStartPercent / 100)) * pixelsPerFoot;
+  const anchorLineMidY = (anchorStartY + anchorEndY) / 2;
+  const sagY = anchorLineMidY + (sagFeet ?? 0) * pixelsPerFoot;
 
+  svg.appendChild(createLine(startX, anchorStartY, sagX, sagY, "black", 2));
+  svg.appendChild(createLine(sagX, sagY, endX, anchorEndY, "black", 2));
+  svg.appendChild(createCircle(sagX, sagY, 3, "red"));
+
+  let label = "Cable Sag Point";
+  if (sagFeet !== null && sagPointPercent !== null) {
+    label += `\n${sagFeet.toFixed(1)} ft sag @ ${fromStartPercent.toFixed(1)}% from start`;
+  }
+
+  svg.appendChild(createText(sagX-45, sagY - 25, label));
+}

@@ -114,7 +114,7 @@ function labelStartAnchorHeightAboveGroundEnd(
     createText(
       startX + XOFFSET_START,
       anchorStartY - YOFFSET_HT,
-      `Start Anchor = ${startAnchorAboveEndGroundFeet.toFixed(1)} ft above End Ground`
+      `(Start Anchor=${startAnchorAboveEndGroundFeet.toFixed(1)}ft above End Ground)`
     )
   );
 }

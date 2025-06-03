@@ -11,9 +11,12 @@ export function drawZipline({
   slopeDeltaFeet,
   cableDropFeet,
   sagFeet,
+  sagPointPercent,
   seatDropFeet,
   clearanceFeet,
   initialEndAnchorHeightFeet,
+  transitionPointRatio,
+  earlySlopeRatio,
 }) {
   const svg = document.getElementById("zipline-diagram");
   svg.innerHTML = "";
@@ -24,12 +27,13 @@ export function drawZipline({
     slopeDeltaFeet,
     cableDropFeet,
     sagFeet,
+    sagPointPercent,
     seatDropFeet,
     clearanceFeet,
     initialEndAnchorHeightFeet,
   });
 
-  // --- Step 2: Define UI/Drawing Parameters (still mixed for now, will be separated later) ---
+  // --- Step 2: Define UI/Drawing Parameters (still mixed for now, can be separated later) ---
   const pixelsPerFoot = 10;
   const margin_pixels = 50;
   const svg_height_pixels = 300;
@@ -79,21 +83,28 @@ export function drawZipline({
     svg,
     startX_pixels,
     anchorStartY_pixels,
-    midX_pixels,
-    midY_pixels,
     endX_pixels,
-    anchorEndY_pixels
+    anchorEndY_pixels,
+    runFeet,
+    pixelsPerFoot,
+    ziplineGeometry.sagFeet,
+    ziplineGeometry.sagPointPercent
   );
-  // drawSeatAssembly still needs feet values for sag/drop/clearance to calculate its relative position
-  // The y-coordinate is based on the cable, so it needs midY_pixels
+
+  const fromStartPercent = 100 - sagPointPercent;
+  const sagX_pixels =
+    startX_pixels + runFeet * (fromStartPercent / 100) * pixelsPerFoot;
+  const sagAnchorY_pixels = (anchorStartY_pixels + anchorEndY_pixels) / 2;
+  const sagY_pixels = sagAnchorY_pixels + sagFeet * pixelsPerFoot;
+
   drawSeatAssembly(
     svg,
-    midX_pixels,
-    midY_pixels,
+    sagX_pixels,
+    sagY_pixels,
     seatDropFeet,
     clearanceFeet,
     pixelsPerFoot
-  ); // Keep pixelsPerFoot here for internal relative calc
+  );
 
   // Label total vertical drop at midpoint
   drawMidlineLabel(
@@ -110,8 +121,11 @@ export function drawZipline({
     startX_pixels,
     startGroundY_pixels,
     endX_pixels,
-    axisY_pixels
+    axisY_pixels,
+    transitionPointRatio,
+    earlySlopeRatio
   );
+
   labelGroundSlopeAtStart(
     svg,
     startX_pixels,
@@ -130,7 +144,6 @@ export function drawZipline({
     sagFeet: ziplineGeometry.sagFeet, // Still needed for tree height calculation
     seatDropFeet: ziplineGeometry.seatDropFeet, // Still needed for tree height calculation
     clearanceFeet: ziplineGeometry.clearanceFeet, // Still needed for tree height calculation
-    // NOW PASS THE CORRECT, PRE-CALCULATED LABEL VALUES FROM ziplineGeometry
     startAnchorAboveStartGroundFeet:
       ziplineGeometry.startAnchorAboveStartGroundFeet,
     startAnchorAboveEndGroundFeet:
