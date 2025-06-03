@@ -11,11 +11,14 @@ const VERTICAL_AXIS_LABEL_OFFSET_Y = 10;
 const VERTICAL_MAJOR_TICK_LENGTH = 5;
 const VERTICAL_MINOR_TICK_LENGTH = 5;
 const VERTICAL_MAJOR_TICK_LABEL_OFFSET_X = 30;
+const VERTICAL_MAJOR_TICK_LABEL_OFFSET_X_RIGHT = 10;
+
 const VERTICAL_MAJOR_TICK_LABEL_OFFSET_Y = 4;
 const DEFAULT_MAX_HEIGHT_FEET = 40;
 const DEFAULT_VERTICAL_MAJOR_TICK_INTERVAL = 10;
 const DEFAULT_VERTICAL_MINOR_TICK_INTERVAL = 2;
 const VERTICAL_AXIS_LABEL_TEXT = "Elevation";
+const XOFFSET_RIGHT_VERTICAL = 40;
 
 function drawHorizontalAxis(svg, startX, axisY, endX, runFeet, pixelsPerFoot) {
   svg.appendChild(createLine(startX, axisY, endX, axisY, AXIS_COLOR, AXIS_STROKE_WIDTH));
@@ -28,7 +31,7 @@ function drawHorizontalAxis(svg, startX, axisY, endX, runFeet, pixelsPerFoot) {
   }
 }
 
-function drawVerticalAxis({
+function drawVerticalAxisLeft({
   svg,
   x,
   axisY,
@@ -55,13 +58,47 @@ function drawVerticalAxis({
   svg.appendChild(createText(x - 40, axisTopY - VERTICAL_AXIS_LABEL_OFFSET_Y, label));
 }
 
+function drawVerticalAxisRight({
+  svg,
+  x,
+  axisY,
+  maxHeightFeet = DEFAULT_MAX_HEIGHT_FEET,
+  pixelsPerFoot,
+  label = VERTICAL_AXIS_LABEL_TEXT,
+  majorTickInterval = DEFAULT_VERTICAL_MAJOR_TICK_INTERVAL,
+  minorTickInterval = DEFAULT_VERTICAL_MINOR_TICK_INTERVAL,
+}) {
+  const axisTopY = axisY - maxHeightFeet * pixelsPerFoot;
+
+  // Draw main vertical line
+  svg.appendChild(createLine(x, axisY, x, axisTopY, AXIS_COLOR, AXIS_STROKE_WIDTH));
+
+  for (let ft = 0; ft <= maxHeightFeet; ft += minorTickInterval) {
+    const y = axisY - ft * pixelsPerFoot;
+    const isMajor = ft % majorTickInterval === 0;
+    const tickLength = isMajor ? VERTICAL_MAJOR_TICK_LENGTH : VERTICAL_MINOR_TICK_LENGTH;
+    svg.appendChild(createLine(x - tickLength, y, x, y, AXIS_COLOR, AXIS_STROKE_WIDTH));
+if (isMajor) {
+  svg.appendChild(
+    createText(
+      x + VERTICAL_MAJOR_TICK_LABEL_OFFSET_X_RIGHT,
+      y + VERTICAL_MAJOR_TICK_LABEL_OFFSET_Y,
+      `${ft} ft`
+    )
+  );
+}
+  }
+  svg.appendChild(createText(x - 40, axisTopY - VERTICAL_AXIS_LABEL_OFFSET_Y, label));
+}
+
+
 export function drawAxes(runFeet, startX, pixelsPerFoot, svg, axisY, endX) {
 
   // Horizontal axis (ground level at the END of the run)
   drawHorizontalAxis(svg, startX, axisY, endX, runFeet, pixelsPerFoot);
 
   // Vertical axis on left (start)
-  drawVerticalAxis({
+  drawVerticalAxisLeft({
     svg,
     x: startX,
     axisY,
@@ -72,7 +109,7 @@ export function drawAxes(runFeet, startX, pixelsPerFoot, svg, axisY, endX) {
   });
 
    // Vertical axis on right (end)
-  drawVerticalAxis({
+  drawVerticalAxisRight({
     svg,
     x: endX,
     axisY,

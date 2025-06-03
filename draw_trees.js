@@ -4,6 +4,8 @@ const XOFFSET_START = 7;
 const XOFFSET_END = 120;
 const YOFFSET_HT = 20;
 const YOFFSET_DELTA = 50;
+const TRUNK_OPACITY = 0.6;
+const TRUNK_WIDTH = 10;
 
 export function getGroundStartY({ axisY }) {
   return axisY;
@@ -58,7 +60,7 @@ export function drawStartTree({
   startAnchorAboveEndGroundFeet,
 }) {
   // Draw the tree trunk
-  const trunkWidth = 10;
+  
   const treeHeightFeet = computeTreeHeightFeet({
     cableDropFeet,
     sagFeet,
@@ -75,7 +77,7 @@ export function drawStartTree({
     startX,
     trunkTopY,
     "saddlebrown",
-    trunkWidth
+    TRUNK_WIDTH, TRUNK_OPACITY
   );
   svg.appendChild(trunk);
 
@@ -163,7 +165,7 @@ export function drawEndTree({
 
   // Trunk
   svg.appendChild(
-    createLine(endX, trunkBaseY, endX, trunkTopY, "saddlebrown", 10)
+    createLine(endX, trunkBaseY, endX, trunkTopY, "saddlebrown", TRUNK_WIDTH, TRUNK_OPACITY)
   );
   // Tree top
   svg.appendChild(createCircle(endX, trunkTopY, 10, "green"));
