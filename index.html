@@ -16,13 +16,13 @@
     </div>
     <div class="inputs">
       <label>
-        Horizontal Run Distance (ft): {{ runFeet.toFixed(0) }}
+        <b>Given</b>: Horizontal Run Distance (ft): {{ runFeet.toFixed(0) }}
         <input v-model.number="runFeet" type="range" min="20" max="150" step="1" />
         <br><small>Length between the two anchor points. Max recommended is 150 ft.</small>
       </label>
 
       <label>
-        Ground Slope Drop (ft): {{ slopeDeltaFeet.toFixed(1) }}
+        <b>Given</b>: Ground Slope Drop (ft): {{ slopeDeltaFeet.toFixed(1) }}
         <input v-model.number="slopeDeltaFeet" type="range" min="0" max="7" step="0.1" />
         <br><small>How much lower Tree 2 is compared to Tree 1 base.</small>
       </label>
@@ -57,19 +57,19 @@
 
       <label>
         Seat to Cable Distance (ft): {{ seatDropFeet.toFixed(1) }}
-        <input v-model.number="seatDropFeet" type="range" min="2" max="6" step="0.1" />
+        <input v-model.number="seatDropFeet" type="range" min="1.5" max="4" step="0.1" />
         <br><small>From cable to center of seat or harness.</small>
       </label>
 
       <label>
         Desired Seat Clearance (ft): {{ clearanceFeet.toFixed(1) }}
-        <input v-model.number="clearanceFeet" type="range" min="0.5" max="4" step="0.1" />
+        <input v-model.number="clearanceFeet" type="range" min="2" max="5" step="0.1" />
         <br><small>Minimum desired clearance from seat bottom to ground.</small>
       </label>
 
       <label>
         Initial End Anchor Height (ft): {{ initialEndAnchorHeightFeet.toFixed(1) }}
-        <input v-model.number="initialEndAnchorHeightFeet" type="range" min="4" max="12" step="0.2" />
+        <input v-model.number="initialEndAnchorHeightFeet" type="range" min="6" max="12" step="0.2" />
         <br><small>The starting height of the end anchor above the end ground.</small>
       </label>
     </div>
