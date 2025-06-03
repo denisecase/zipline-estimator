@@ -48,30 +48,31 @@
         <br><small>Minimum desired clearance from seat bottom to ground.</small>
       </label>
 
-            <label>
+      <label>
         Initial End Anchor Height (ft):
         <input v-model.number="initialEndAnchorHeightFeet" type="number" value="7.0" />
         <br><small>The starting height of the end anchor above the end ground.</small>
       </label>
-      </div>
-    </div>
-
-    <svg id="zipline-diagram" width="800" height="300"></svg>
-
-    <div class="output">
-      <p>Max Drop: {{ maxDropFeet.toFixed(2) }} ft</p>
-      <p>Estimated Max Velocity: {{ velocityMilesPerHour.toFixed(1) }} mph ({{ velocityFeetPerSecond.toFixed(1) }} ft/s)</p>
-      <p>Estimated Ride Time: {{ rideTimeSeconds.toFixed(1) }} sec</p>
-    </div>
-
-    <div class="warning">
-      ⚠️ This tool is for fun ONLY. Always consult a qualified professional before installing a zipline.
     </div>
   </div>
 
+  <svg id="zipline-diagram" width="800" height="300"></svg>
+
+  <div class="output">
+    <p>Max Drop: {{ maxDropFeet.toFixed(2) }} ft</p>
+    <p>Estimated Max Velocity: {{ velocityMilesPerHour.toFixed(1) }} mph ({{ velocityFeetPerSecond.toFixed(1) }} ft/s)
+    </p>
+    <p>Estimated Ride Time: {{ rideTimeSeconds.toFixed(1) }} sec</p>
+  </div>
+
+  <div class="warning">
+    ⚠️ This tool is for fun ONLY. Always consult a qualified professional before installing a zipline.
+  </div>
+  </div>
+
   <div id="test-results"></div>
-  <script type="module" src="main.js"></script>
-  <script type="module" src="test.js"></script>
+  <script type="module" src="./main.js"></script>
+  <script type="module" src="./test.js"></script>
 </body>
 
 </html>
