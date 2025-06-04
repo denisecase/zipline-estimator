@@ -1,5 +1,7 @@
 // calcs.js
 
+import { getSagPointPercent, getSagFeet } from "./calc_utils.js";
+
 /**
  * Calculates all relevant zipline geometry in real-world units (feet).
  * It determines an overall vertical shift required to ensure the lowest point
@@ -9,82 +11,47 @@
  * @param {number} params.runFeet - Horizontal length of the zipline run.
  * @param {number} params.slopeDeltaFeet - Vertical height difference between start ground and end ground (start_ground - end_ground).
  * @param {number} params.cableDropFeet - Vertical height difference between start anchor and end anchor (start_anchor - end_anchor).
- * @param {number} params.sagFeet - Vertical sag of the cable at its midpoint below the straight line between anchors.
- * @param {number} params.sagPointPercent - Horizontal position of sag point, expressed as a percent from end (e.g., 44).
  * @param {number} params.seatDropFeet - Vertical drop from the cable to the seat attachment point.
  * @param {number} params.clearanceFeet - Desired minimum vertical clearance between the seat bottom and the ground.
  * @param {number} params.initialEndAnchorHeightFeet - The initial desired height of the end anchor above the end ground.
+ * @param {number} params.riderWeightLbs - Weight of the rider in pounds.
+ * @param {Array} params.riderSagTable - Table of sag data for different rider weights, containing objects with `rider_weight_lbs`, `sag_point_percent`, and `sag_vertical_ft`.
  * @returns {object} An object containing all calculated elevations and dimensions in feet.
  */
-export function calculateZiplineGeometry(params) {
+export function calcGeo(params) {
   const {
     runFeet,
     slopeDeltaFeet,
     cableDropFeet,
-    sagFeet,
-    sagPointPercent,
     seatDropFeet,
     clearanceFeet,
     initialEndAnchorHeightFeet,
+    riderWeightLbs,
+    riderSagTable,
+    transitionPointRatio,
+    earlySlopeRatio,
   } = params;
 
-  // --- Step 1: Establish Initial Relative Ground Elevations (assuming end ground is at 0 reference) ---
-  const relativeEndGroundElevationFt = 0; // Reference point: End Ground is at 0 elevation
-  const relativeStartGroundElevationFt =
-    relativeEndGroundElevationFt + slopeDeltaFeet;
+  const sagPointPercent = getSagPointPercent(riderWeightLbs, riderSagTable);
+  const sagFeet = getSagFeet(riderWeightLbs, riderSagTable, cableDropFeet);
 
-  // --- Step 2: Establish Initial Relative Anchor Elevations ---
-  const relativeEndAnchorElevationFt =
-    relativeEndGroundElevationFt + initialEndAnchorHeightFeet;
-  const relativeStartAnchorElevationFt =
-    relativeEndAnchorElevationFt + cableDropFeet;
+  const endGround = 0;
+  const startGround = endGround + slopeDeltaFeet;
 
-  // --- Step 3: Calculate Initial Relative Cable Midpoint Elevation ---
-  const midlineAnchorElevationFt =
-    (relativeStartAnchorElevationFt + relativeEndAnchorElevationFt) / 2;
-  const relativeMidCableElevationFt = midlineAnchorElevationFt - sagFeet;
+  const endAnchor = endGround + initialEndAnchorHeightFeet;
+  const startAnchor =
+    startGround + (initialEndAnchorHeightFeet + cableDropFeet);
 
-  // --- Step 4: Calculate Initial Relative **Bottom of Clearance** Elevation ---
-  const relativeBottomClearanceElevationFt =
-    relativeMidCableElevationFt - seatDropFeet - clearanceFeet;
+  const midAnchor = (startAnchor + endAnchor) / 2;
+  const midCable = midAnchor - sagFeet;
 
-  // --- Step 5: Determine Required Vertical Offset for Ground Clearance (in feet) ---
-  let verticalOffsetNeededFt = 0;
-  if (relativeBottomClearanceElevationFt < relativeEndGroundElevationFt) {
-    verticalOffsetNeededFt =
-      relativeEndGroundElevationFt - relativeBottomClearanceElevationFt;
-  }
+  const bottomClearance = midCable - seatDropFeet - clearanceFeet;
 
-  // --- Step 6: Apply the Vertical Offset to all Elevations (Final "Real-World" Elevations) ---
-  // These are the actual variables holding the final calculated values
-  const finalStartGroundElevationFt =
-    relativeStartGroundElevationFt + verticalOffsetNeededFt;
-  const finalEndGroundElevationFt =
-    relativeEndGroundElevationFt + verticalOffsetNeededFt;
-  const finalStartAnchorElevationFt =
-    relativeStartAnchorElevationFt + verticalOffsetNeededFt;
-  const finalEndAnchorElevationFt =
-    relativeEndAnchorElevationFt + verticalOffsetNeededFt;
-  const finalMidCableElevationFt =
-    relativeMidCableElevationFt + verticalOffsetNeededFt;
-  const finalBottomClearanceElevationFt =
-    relativeBottomClearanceElevationFt + verticalOffsetNeededFt;
-
-  // --- Step 7: Calculate Horizontal Positions (in feet) ---
-  const startXFt = 0;
-  const endXFt = runFeet;
-  const midXFt = (sagPointPercent / 100) * runFeet;
-
-  // --- Step 8: Calculate Label Values (in feet) ---
-  const startAnchorAboveStartGroundFeet =
-    finalStartAnchorElevationFt - finalStartGroundElevationFt;
-  const startAnchorAboveEndGroundFeet =
-    finalStartAnchorElevationFt - finalEndGroundElevationFt;
-  const endAnchorAboveEndGroundFeet =
-    finalEndAnchorElevationFt - finalEndGroundElevationFt;
+  const minGround = Math.min(startGround, endGround);
+  const isSafe = bottomClearance >= minGround;
 
   return {
-    // Input parameters (returned as-is for reference)
+    // --- Input Parameters ---
     runFeet,
     slopeDeltaFeet,
     cableDropFeet,
@@ -92,25 +59,28 @@ export function calculateZiplineGeometry(params) {
     sagPointPercent,
     seatDropFeet,
     clearanceFeet,
-    initialEndAnchorHeightFeet,
+    transitionPointRatio,
+    earlySlopeRatio,
 
-    // Final Calculated Elevations (in feet) --
-    StartGroundElevationFt: finalStartGroundElevationFt,
-    EndGroundElevationFt: finalEndGroundElevationFt,
-    startAnchorElevationFt: finalStartAnchorElevationFt,
-    endAnchorElevationFt: finalEndAnchorElevationFt,
-    midCableElevationFt: finalMidCableElevationFt,
-    bottomClearanceElevationFt: finalBottomClearanceElevationFt,
-    verticalOffsetFt: verticalOffsetNeededFt,
+    // --- Horizontal Positions (in Feet) ---
+    startXFt: 0,
+    endXFt: runFeet,
+    midXFt: (sagPointPercent / 100) * runFeet,
 
-    // Horizontal Positions (in feet)
-    startXFt,
-    endXFt,
-    midXFt,
+    // --- Elevations (in Feet) ---
+    startGroundElevationFt: startGround,
+    endGroundElevationFt: endGround,
+    startAnchorElevationFt: startAnchor,
+    endAnchorElevationFt: endAnchor,
+    midCableElevationFt: midCable,
+    bottomClearanceElevationFt: bottomClearance,
 
-    // Specific values for labels (in feet)
-    startAnchorAboveStartGroundFeet,
-    startAnchorAboveEndGroundFeet,
-    endAnchorAboveEndGroundFeet,
+    // --- Derived Anchor Heights (for Labeling) ---
+    startAnchorAboveStartGroundFeet: startAnchor - startGround,
+    startAnchorAboveEndGroundFeet: startAnchor - endGround,
+    endAnchorAboveEndGroundFeet: endAnchor - endGround,
+
+    // --- Safety Check ---
+    isSafe,
   };
 }

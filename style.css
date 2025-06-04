@@ -117,3 +117,29 @@ details summary {
   cursor: pointer;
   
 }
+
+.output-container,
+.test-results-container {
+  max-width: 100%;
+  padding: 1rem;
+  overflow-x: auto;
+  font-size: 0.85em;
+}
+
+.output p {
+  margin: 0.2em 0;
+}
+
+#test-results table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.6em; /* Smaller text for compact view */
+  margin-top: 1rem;
+}
+
+#test-results th,
+#test-results td {
+  border: 1px solid #ccc;
+  text-align: center;
+  background-color: white;
+}

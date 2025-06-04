@@ -1,8 +1,6 @@
 // draw_midline.js
 import { createRect, createText } from "./draw_utils.js";
 
-
-
 //Draw three vertical/horizontal rectangles:
 //1. Orange vertical bar = rope from cable to seat
 //2. Blue horizontal bar = seat (1 ft wide × 2 in tall)
@@ -10,38 +8,46 @@ import { createRect, createText } from "./draw_utils.js";
 
 export function drawSeatAssembly(
   svg,
-  midX,
-  midY,
+  sagX_pixels,
+  sagY_pixels,
   seatDropFeet,
   clearanceFeet,
   pixelsPerFoot
 ) {
-  const seatX = midX;
+  console.log("Seat Assembly Inputs:", {
+    sagX_pixels,
+    sagY_pixels,
+    seatDropFeet,
+    clearanceFeet,
+    pixelsPerFoot,
+  });
+
   const ropeHeight = seatDropFeet * pixelsPerFoot;
   const clearanceHeight = clearanceFeet * pixelsPerFoot;
-  const seatY = midY + ropeHeight;
+  const seatY = sagY_pixels + ropeHeight;
   const seatWidth = 10; // 1 foot
   const seatHeight = 2; // ~2 inches
 
   console.log("drawSeatAssembly values", {
-  midY,
-  seatDropFeet,
-  clearanceFeet,
-  ropeHeight,
-  seatHeight,
-  clearanceHeight,
-  totalHeight: ropeHeight + seatHeight + clearanceHeight
-});
+    sagY_pixels,
+    seatDropFeet,
+    clearanceFeet,
+    ropeHeight,
+    seatHeight,
+    clearanceHeight,
+    totalHeight: ropeHeight + seatHeight + clearanceHeight,
+  });
 
   // 1. Rope (orange vertical rect from cable to seat)
-  svg.appendChild(createRect(seatX - 2, midY, 4, ropeHeight, "orange"));
-  svg.appendChild(createText(seatX + 6, seatY - 10, `Rope (${seatDropFeet }ft)`));
+  svg.appendChild(createRect(sagX_pixels - 2, sagY_pixels, 4, ropeHeight, "orange"));
+  svg.appendChild(
+    createText(sagX_pixels + 6, seatY - 10, `Rope (${seatDropFeet} ft)`)
+  );
 
   // 2. Seat (blue horizontal 1ft × 2in)
-
   svg.appendChild(
     createRect(
-      seatX - seatWidth / 2,
+      sagX_pixels - seatWidth / 2,
       seatY - seatHeight,
       seatWidth,
       seatHeight,
@@ -51,13 +57,17 @@ export function drawSeatAssembly(
 
   // 3. Clearance (gray vertical rect from seat to ground)
   svg.appendChild(
-    createRect(seatX - 2, seatY, 4, clearanceHeight, "lightgray")
+    createRect(sagX_pixels - 2, seatY, 4, clearanceHeight, "lightgray")
   );
 
   // 4. Label
-  svg.appendChild(createText(seatX + 6, seatY + 10, `Seat Clearance (${clearanceFeet }ft)`));
+  svg.appendChild(
+    createText(sagX_pixels + 6, seatY + 10, `Seat Clearance (${clearanceFeet} ft)`)
+  );
 }
 
+
+// Adds a summary label showing sag + rope + clearance
 export function drawMidlineLabel(
   sagFeet,
   seatDropFeet,
@@ -67,6 +77,48 @@ export function drawMidlineLabel(
   midX
 ) {
   const totalDropFeet = sagFeet + seatDropFeet + clearanceFeet;
-  const totalDropText = `Max=${totalDropFeet.toFixed(1)}ft = sag (${sagFeet.toFixed(1)}) + rope (${seatDropFeet.toFixed(1)}) + clearance (${clearanceFeet.toFixed(1)})`;
-  svg.appendChild(createText(midX-45, midY - 40, totalDropText));
+  const totalDropText = `Max=${totalDropFeet.toFixed(
+    1
+  )} ft = sag (${sagFeet.toFixed(1)}) + rope (${seatDropFeet.toFixed(
+    1
+  )}) + clearance (${clearanceFeet.toFixed(1)})`;
+  svg.appendChild(createText(midX - 45, midY - 40, totalDropText));
+}
+
+// Logical check: Is the bottom of the rider assembly above the ground?
+export function isClearanceSafe(
+  bottomClearanceElevationFt,
+  minGroundElevationFt
+) {
+  return bottomClearanceElevationFt >= minGroundElevationFt;
+}
+
+// Returns the default safe cable color
+export function drawSafe(svg, cableColor = "orange") {
+  return cableColor;
+}
+
+// Adds a red warning label and plays a crash sound
+export function drawNotSafe(svg, midX, midY) {
+  const cableColor = "red";
+  svg.appendChild(createText(midX - 20, midY - 20, "⚠ Not Safe!", "red"));
+  playCrashSound();
+  return cableColor;
+}
+
+// Sound effect on collision or failed safety check
+function playCrashSound() {
+  const audio = new Audio("sounds/crash.mp3");
+  audio.play();
+}
+
+export function getCableColorBasedOnClearance(geometry, svg, x, y) {
+  if (!geometry) return "black";
+
+  const safe = isClearanceSafe(
+    geometry.bottomClearanceElevationFt,
+    Math.min(geometry.startGroundElevationFt, geometry.endGroundElevationFt)
+  );
+
+  return safe ? drawSafe(svg) : drawNotSafe(svg, x, y);
 }

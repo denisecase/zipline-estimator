@@ -11,37 +11,41 @@
 <body>
   <div id="app">
     <h1>Zipline Estimator</h1>
+
     <div class="warning">
       ⚠️ This tool is for fun ONLY. Always consult a qualified professional before installing a zipline.
     </div>
+
     <div class="inputs">
 
       <details open>
         <summary><b>Rise & Run</b></summary>
 
         <div class="slider-row">
-          <label for="runFeet">Horizontal Run (ft): <span>{{ runFeet.toFixed(0) }}</span></label>
-          <input id="runFeet" v-model.number="runFeet" type="range" min="80" max="90" step="1"
+          <label for="runFeet">Horizontal Run (ft):
+            <span>{{ runFeet != null ? runFeet.toFixed(0) : '—' }}</span></label>
+          <input id="runFeet" v-model.number="inputs.runFeet" type="range" min="80" max="90" step="1" value="81"
             title="Length between the two anchor points. Calcs need updating for longer runs." />
         </div>
 
         <div class="slider-row">
-          <label for="slopeDeltaFeet">Ground Slope Drop (ft): <span>{{ slopeDeltaFeet.toFixed(1) }}</span></label>
-          <input id="slopeDeltaFeet" v-model.number="slopeDeltaFeet" type="range" min="0" max="7" step="0.1"
+          <label for="slopeDeltaFeet">Ground Slope Drop (ft):
+            <span>{{ slopeDeltaFeet != null ? slopeDeltaFeet.toFixed(1) : '—' }}</span></label>
+          <input id="slopeDeltaFeet" v-model.number="inputs.slopeDeltaFeet" type="range" min="0" max="7" step="0.1"
             title="How much lower Tree 2 is compared to Tree 1 base." />
         </div>
 
         <div class="slider-row">
-          <label for="transitionPointRatio"><b>Optional</b>: Ground transition point (%): <span>{{ transitionPointRatio
-              }}%</span></label>
-          <input id="transitionPointRatio" v-model.number="transitionPointRatio" type="range" min="10" max="90" step="1"
+          <label for="transitionPointRatio"><b>Optional</b>: Ground transition point (%):
+            <span>{{ transitionPointRatio != null ? transitionPointRatio : '—' }}%</span></label>
+          <input id="transitionPointRatio" v-model.number="inputs.transitionPointRatio" type="range" min="10" max="90" step="1"
             title="Where the slope transition occurs." />
         </div>
 
         <div class="slider-row">
-          <label for="earlySlopeRatio"><b>Optional</b>: Ground early slope (%): <span>{{ earlySlopeRatio
-              }}%</span></label>
-          <input id="earlySlopeRatio" v-model.number="earlySlopeRatio" type="range" min="0" max="100" step="1"
+          <label for="earlySlopeRatio"><b>Optional</b>: Ground early slope (%):
+            <span>{{ earlySlopeRatio != null ? earlySlopeRatio : '—' }}%</span></label>
+          <input id="earlySlopeRatio" v-model.number="inputs.earlySlopeRatio" type="range" min="0" max="100" step="1"
             title="How much of the slope is used early." />
         </div>
       </details>
@@ -50,22 +54,25 @@
         <summary><b>Cable Anchoring</b></summary>
 
         <div class="slider-row">
-          <label for="cableDropFeet">Desired Cable Drop (ft): <span>{{ cableDropFeet.toFixed(1) }}</span></label>
-          <input id="cableDropFeet" v-model.number="cableDropFeet" type="range" min="0" max="7" step="0.1"
+          <label for="cableDropFeet">Desired Cable Drop (ft):
+            <span>{{ cableDropFeet != null ? cableDropFeet.toFixed(1) : '—' }}</span></label>
+          <input id="cableDropFeet" v-model.number="inputs.cableDropFeet" type="range" min="0" max="7" step="0.1"
             title="End anchor lower than start anchor." />
         </div>
 
         <div class="slider-row">
-          <label for="initialEndAnchorHeightFeet">End Anchor Height (ft): <span>{{ initialEndAnchorHeightFeet.toFixed(1)
+          <label for="initialEndAnchorHeightFeet">End Anchor Height (ft):
+            <span>{{ initialEndAnchorHeightFeet != null ? initialEndAnchorHeightFeet.toFixed(1) : '—'
               }}</span></label>
-          <input id="initialEndAnchorHeightFeet" v-model.number="initialEndAnchorHeightFeet" type="range" min="6"
+          <input id="initialEndAnchorHeightFeet" v-model.number="inputs.initialEndAnchorHeightFeet" type="range" min="6.5"
             max="14" step="0.2" title="Height above ground at end point." />
         </div>
 
         <div class="slider-row">
-          <label for="initialStartAnchorHeightFeet">Start Anchor Height (ft): <span>{{
-              initialStartAnchorHeightFeet.toFixed(1) }}</span></label>
-          <input id="initialStartAnchorHeightFeet" :value="initialStartAnchorHeightFeet" type="range" min="6" max="20"
+          <label for="initialStartAnchorHeightFeet">Start Anchor, calculated (ft):
+            <span>{{
+              initialStartAnchorHeightFeet != null ? initialStartAnchorHeightFeet.toFixed(1) : '—' }}</span></label>
+          <input id="initialStartAnchorHeightFeet" :value="initialStartAnchorHeightFeet" type="range" min="6.5" max="21"
             step="0.1" disabled title="Calculated: End Anchor Height + Cable Drop." />
         </div>
       </details>
@@ -74,38 +81,49 @@
         <summary><b>Midline & Rider</b></summary>
 
         <div class="slider-row">
-          <label for="selectedRiderWeight">Rider Weight (lbs): <span>{{ selectedRiderWeight }}</span></label>
-          <input id="selectedRiderWeight" v-model.number="selectedRiderWeight" type="range" min="60" max="250" step="1"
+          <label for="riderWeightLbs">Rider Weight (lbs):
+            <span>{{ riderWeightLbs != null ? riderWeightLbs : '—' }}</span></label>
+          <input id="riderWeightLbs" v-model.number="inputs.riderWeightLbs" type="range" min="60" max="250" step="1"
             title="Used to estimate sag and midpoint." />
         </div>
 
         <div class="slider-row">
-          <label for="seatDropFeet">Seat to Cable (ft): <span>{{ seatDropFeet.toFixed(1) }}</span></label>
-          <input id="seatDropFeet" v-model.number="seatDropFeet" type="range" min="1.5" max="4" step="0.1"
+          <label for="seatDropFeet">Seat to Cable (ft):
+            <span>{{ seatDropFeet != null ? seatDropFeet.toFixed(1) : '—' }}</span></label>
+          <input id="seatDropFeet" v-model.number="inputs.seatDropFeet" type="range" min="1.5" max="4" step="0.1"
             title="From cable to seat center or harness." />
         </div>
 
         <div class="slider-row">
-          <label for="clearanceFeet">Seat Clearance (ft): <span>{{ clearanceFeet.toFixed(1) }}</span></label>
-          <input id="clearanceFeet" v-model.number="clearanceFeet" type="range" min="2" max="5" step="0.1"
+          <label for="clearanceFeet">Seat Clearance (ft):
+            <span>{{ clearanceFeet != null ? clearanceFeet.toFixed(1) : '—' }}</span></label>
+          <input id="clearanceFeet" v-model.number="inputs.clearanceFeet" type="range" min="2" max="5" step="0.1"
             title="Minimum clearance from seat to ground." />
         </div>
       </details>
 
     </div>
-  </div>
 
-  <div class="svg-wrapper">
-    <svg id="zipline-diagram" viewBox="0 0 900 300" preserveAspectRatio="xMidYMid meet"></svg>
-  </div>
 
-  <div class="output">
-    <p>Max Drop: {{ maxDropFeet.toFixed(2) }} ft</p>
-    <p>Estimated Max Velocity: {{ velocityMilesPerHour.toFixed(1) }} mph ({{ velocityFeetPerSecond.toFixed(1) }} ft/s)
-    </p>
-    <p>Estimated Ride Time: {{ rideTimeSeconds.toFixed(1) }} sec</p>
-  </div>
+    <div class="svg-wrapper">
+      <svg id="zipline-diagram" viewBox="0 0 900 300" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
 
+
+    <div class="output-container">
+      <div class="output">
+        <p>Max Drop: {{ maxDropFeet != null ? maxDropFeet.toFixed(2) : '—' }} ft</p>
+        <p>
+          Estimated Max Velocity:
+          {{ velocityMilesPerHour != null ? velocityMilesPerHour.toFixed(1) : '—' }} mph
+          ({{ velocityFeetPerSecond != null ? velocityFeetPerSecond.toFixed(1) : '—' }} ft/s)
+        </p>
+        <p>
+          Estimated Ride Time:
+          {{ rideTimeSeconds != null ? rideTimeSeconds.toFixed(1) : '—' }} sec
+        </p>
+      </div>
+    </div>
 
   </div>
   <div class="github-link">
@@ -124,7 +142,7 @@
     </a>
   </div>
 
-  <div id="test-results"></div>
+  <div id="test-results" class="test-results-container"></div>
   <script type="module" src="./main.js" defer></script>
   <script type="module" src="./test.js"></script>
 </body>
