@@ -50,7 +50,8 @@ export function drawZipline(geo) {
     geo.runFeet,
     pixelsPerFoot,
     geo.sagFeet,
-    geo.sagPointPercent
+    geo.sagPointPercent,
+    geo
   );
 
   const fromStartPercent = 100 - geo.sagPointPercent;
@@ -64,7 +65,8 @@ export function drawZipline(geo) {
     sagY_pixels,
     geo.seatDropFeet,
     geo.clearanceFeet,
-    pixelsPerFoot
+    pixelsPerFoot,
+    geo.isSafe
   );
 
   drawMidlineLabel(

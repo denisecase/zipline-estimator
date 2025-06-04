@@ -95,10 +95,8 @@ function runTestCases() {
       <th>Label</th>
       <th>Run<br>(ft)</th>
       <th>Drop<br>(ft)</th>
-      <th>Sag<br>(ft)</th>
       <th>Seat<br>Drop</th>
       <th>Clearance<br>(ft)</th>
-      <th>Total<br>Sag (ft)</th>
       <th>Max<br>Drop (ft)</th>
       <th>Velocity<br>(ft/s)</th>
       <th>Velocity<br>(mph)</th>
@@ -119,10 +117,8 @@ function runTestCases() {
         <td>${label}</td>
         <td>${input.runFeet}</td>
         <td>${input.cableDropFeet}</td>
-        <td>${result.sagFeet.toFixed(2)}</td>
         <td>${input.seatDropFeet}</td>
         <td>${input.clearanceFeet}</td>
-        <td>${result.sagFeet.toFixed(2)}</td>
         <td>${maxDrop.toFixed(2)}</td>
         <td>${velocityFPS.toFixed(1)}</td>
         <td>${velocityMPH.toFixed(1)}</td>

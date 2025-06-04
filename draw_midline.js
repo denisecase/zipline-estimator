@@ -93,32 +93,3 @@ export function isClearanceSafe(
   return bottomClearanceElevationFt >= minGroundElevationFt;
 }
 
-// Returns the default safe cable color
-export function drawSafe(svg, cableColor = "orange") {
-  return cableColor;
-}
-
-// Adds a red warning label and plays a crash sound
-export function drawNotSafe(svg, midX, midY) {
-  const cableColor = "red";
-  svg.appendChild(createText(midX - 20, midY - 20, "⚠ Not Safe!", "red"));
-  playCrashSound();
-  return cableColor;
-}
-
-// Sound effect on collision or failed safety check
-function playCrashSound() {
-  const audio = new Audio("sounds/crash.mp3");
-  audio.play();
-}
-
-export function getCableColorBasedOnClearance(geometry, svg, x, y) {
-  if (!geometry) return "black";
-
-  const safe = isClearanceSafe(
-    geometry.bottomClearanceElevationFt,
-    Math.min(geometry.startGroundElevationFt, geometry.endGroundElevationFt)
-  );
-
-  return safe ? drawSafe(svg) : drawNotSafe(svg, x, y);
-}

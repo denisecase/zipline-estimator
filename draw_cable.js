@@ -1,9 +1,6 @@
+// draw_cable.js
 import { createLine, createCircle, createText } from "./draw_utils.js";
-import {
-  isClearanceSafe,
-  drawSafe,
-  drawNotSafe,getCableColorBasedOnClearance
-} from "./draw_midline.js";
+
 
 /**
  * Draws the cable, sag line, and visual indicators for zipline safety.
@@ -60,3 +57,53 @@ export function drawCable(
   svg.appendChild(createText(sagX - 45, sagY - 25, label));
 }
 
+// Returns the default safe cable color
+export function drawSafe(svg, cableColor = "black") {
+  return cableColor;
+}
+
+// Adds a red warning label and plays a crash sound
+export function drawNotSafe(svg, midX, midY) {
+  const cableColor = "red";
+  svg.appendChild(createText(midX - 20, midY - 100, "⚠ DANGER! Not Safe!", "red"));
+  playCrashSound();
+  return cableColor;
+}
+
+// Sound effect on collision or failed safety check
+function playCrashSound() {
+  //const audio = new Audio("sounds/crash.mp3");
+  //audio.play();
+  playBeep(); // Fallback to a simple beep sound
+}
+
+export function getCableColorBasedOnClearance(geometry, svg, x, y) {
+  if (!geometry) return "black";
+  return geometry.isSafe ? drawSafe(svg) : drawNotSafe(svg, x, y);
+}
+
+// Create one global AudioContext
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+
+export function playBeep() {
+  if (audioCtx.state === "suspended") {
+    audioCtx.resume();
+  }
+
+  const oscillator = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  oscillator.type = "triangle"; // "sine" "square", "triangle", "sawtooth"
+  oscillator.frequency.value = 880; // Hz kind of high
+
+  oscillator.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  oscillator.start();
+  oscillator.stop(audioCtx.currentTime + 0.15); // 150ms
+
+  // Optional: brief fade-out to avoid click sound
+  gain.gain.setValueAtTime(1, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+}

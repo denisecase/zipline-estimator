@@ -2,6 +2,10 @@
 
 import { getSagPointPercent, getSagFeet } from "./calc_utils.js";
 
+export function isClearanceSafe(bottomClearanceFt, minGroundFt) {
+  return bottomClearanceFt >= minGroundFt;
+}
+
 /**
  * Calculates all relevant zipline geometry in real-world units (feet).
  * It determines an overall vertical shift required to ensure the lowest point

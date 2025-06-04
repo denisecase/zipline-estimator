@@ -18,8 +18,8 @@ export function startApp() {
           cableDropFeet: 4,
           seatDropFeet: 3.5,
           clearanceFeet: 2,
-          initialEndAnchorHeightFeet: 7,
-          riderWeightLbs: 250,
+          initialEndAnchorHeightFeet: 8,
+          riderWeightLbs: 150,
           riderSagTable: [
             {
               rider_weight_lbs: 60,
