@@ -22,8 +22,23 @@ details {
   border: 1px solid #ccc;
   padding: 1rem;
   border-radius: 6px;
-   
   background-color: #fff;
+}
+
+.svg-wrapper {
+  width: 100%;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 6px;
+  background-color: white;
+  margin-top: 1em;
+  box-sizing: border-box;
+}
+
+#zipline-diagram {
+  width: 100%;
+  height: auto;
+  background: white;
 }
 
 legend {
@@ -68,11 +83,7 @@ input[type="number"] {
   margin-bottom: 1em;
 }
 
-#zipline-diagram {
-  border: 1px solid #ccc;
-  margin-top: 1em;
-  background: white;
-}
+
 
 .slider-row {
   display: flex;

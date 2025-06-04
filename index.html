@@ -32,13 +32,15 @@
         </div>
 
         <div class="slider-row">
-          <label for="transitionPointRatio"><b>Optional</b>: Ground transition point (%): <span>{{ transitionPointRatio }}%</span></label>
+          <label for="transitionPointRatio"><b>Optional</b>: Ground transition point (%): <span>{{ transitionPointRatio
+              }}%</span></label>
           <input id="transitionPointRatio" v-model.number="transitionPointRatio" type="range" min="10" max="90" step="1"
             title="Where the slope transition occurs." />
         </div>
 
         <div class="slider-row">
-          <label for="earlySlopeRatio"><b>Optional</b>: Ground early slope (%): <span>{{ earlySlopeRatio }}%</span></label>
+          <label for="earlySlopeRatio"><b>Optional</b>: Ground early slope (%): <span>{{ earlySlopeRatio
+              }}%</span></label>
           <input id="earlySlopeRatio" v-model.number="earlySlopeRatio" type="range" min="0" max="100" step="1"
             title="How much of the slope is used early." />
         </div>
@@ -78,7 +80,7 @@
         </div>
 
         <div class="slider-row">
-          <label for="seatDropFeet">Seat to Cable Distance (ft): <span>{{ seatDropFeet.toFixed(1) }}</span></label>
+          <label for="seatDropFeet">Seat to Cable (ft): <span>{{ seatDropFeet.toFixed(1) }}</span></label>
           <input id="seatDropFeet" v-model.number="seatDropFeet" type="range" min="1.5" max="4" step="0.1"
             title="From cable to seat center or harness." />
         </div>
@@ -93,8 +95,9 @@
     </div>
   </div>
 
-
-  <svg id="zipline-diagram" width="800" height="300"></svg>
+  <div class="svg-wrapper">
+    <svg id="zipline-diagram" viewBox="0 0 900 300" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
 
   <div class="output">
     <p>Max Drop: {{ maxDropFeet.toFixed(2) }} ft</p>
