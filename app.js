@@ -56,12 +56,27 @@ export function startApp() {
         };
       },
       computed: {
+        initialStartAnchorHeightFeet() {
+          return this.initialEndAnchorHeightFeet + this.cableDropFeet;
+        },
         sagFeet() {
-          return interpolate(
+          const tableSagFeet = interpolate(
             this.riderSagTable,
             this.selectedRiderWeight,
             "sag_vertical_ft"
           );
+
+          // Calculate where the sag point falls as a ratio along the cable
+          const sagRatio = this.sagPointPercent / 100;
+
+          // Linear vertical drop from start to end anchor
+          const cableDrop = this.cableDropFeet;
+
+          // Height of the straight cable line at the sag point (relative to start anchor)
+          const cableHeightAtSagPoint = cableDrop * sagRatio;
+
+          // True sag is how far below that straight line the sag point is
+          return tableSagFeet - cableHeightAtSagPoint;
         },
         sagPointPercent() {
           return interpolate(
@@ -108,6 +123,7 @@ export function startApp() {
             seatDropFeet: this.seatDropFeet,
             clearanceFeet: this.clearanceFeet,
             initialEndAnchorHeightFeet: this.initialEndAnchorHeightFeet,
+            initialStartAnchorHeightFeet: this.initialStartAnchorHeightFeet,
             transitionPointRatio: this.transitionPointRatio,
             earlySlopeRatio: this.earlySlopeRatio,
           });

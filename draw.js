@@ -15,6 +15,7 @@ export function drawZipline({
   seatDropFeet,
   clearanceFeet,
   initialEndAnchorHeightFeet,
+  initialStartAnchorHeightFeet,
   transitionPointRatio,
   earlySlopeRatio,
 }) {
