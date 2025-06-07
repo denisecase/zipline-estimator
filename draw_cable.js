@@ -1,109 +1,85 @@
 // draw_cable.js
 import { createLine, createCircle, createText } from "./draw_utils.js";
+import { playBeep } from "./audio.js"; // Assuming playBeep is in audio.js for playCrashSound
 
+const CABLE_COLOR_SAFE = "black";
+const CABLE_COLOR_UNSAFE = "red";
+const CABLE_THICKNESS = 2; // Consistent thickness
 
 /**
- * Draws the cable, sag line, and visual indicators for zipline safety.
+ * Draws a zipline cable with optional sag.
  *
- * @param {SVGElement} svg - The SVG element to draw on.
- * @param {number} startX - X position of the start anchor.
- * @param {number} anchorStartY - Y position of the start anchor.
- * @param {number} endX - X position of the end anchor.
- * @param {number} anchorEndY - Y position of the end anchor.
- * @param {number} runFeet - Total horizontal run in feet.
- * @param {number} pixelsPerFoot - Scale factor.
- * @param {number|null} sagFeet - Vertical sag in feet.
- * @param {number|null} sagPointPercent - Percent from end anchor where sag occurs.
- * @param {object} geometry - Calculated geometry including bottomClearanceElevationFt.
+ * @param {SVGElement} svg - SVG element to draw on.
+ * @param {number} startX - X position of the start anchor (in pixels).
+ * @param {number} startY - Y position of the start anchor (in pixels).
+ * @param {number} endX - X position of the end anchor (in pixels).
+ * @param {number} endY - Y position of the end anchor (in pixels).
+ * @param {number|null} sagX - X position of sag point (in pixels), or null if no sag.
+ * @param {number|null} sagY - Y position of sag point (in pixels), or null if no sag.
+ * @param {number} sagFt - The calculated sag amount in feet. // NEW PARAMETER
+ * @param {number} sagPointPercentFromStart - The sag point's position as a percentage from the start. // NEW PARAMETER
+ * @param {boolean} isSafe - Whether the ride is considered safe. // Existing parameter, but ensure it's passed
  */
 export function drawCable(
   svg,
   startX,
-  anchorStartY,
+  startY,
   endX,
-  anchorEndY,
-  runFeet,
-  pixelsPerFoot,
-  sagFeet = null,
-  sagPointPercent = null,
-  geometry = null
+  endY,
+  sagX = null,
+  sagY = null,
+  sagFt, // Expecting this now
+  sagPointPercentFromStart, // Expecting this now
+  isSafe = true // Ensure this is handled
 ) {
-  const fromStartPercent =
-    sagPointPercent !== null ? 100 - sagPointPercent : 50;
-
-  const sagX = startX + runFeet * (fromStartPercent / 100) * pixelsPerFoot;
-  const anchorLineMidY = (anchorStartY + anchorEndY) / 2;
-  const sagY = anchorLineMidY + (sagFeet ?? 0) * pixelsPerFoot;
-
-  // Determine color based on safety, default to black
-  const cableColor = getCableColorBasedOnClearance(geometry, svg, sagX, sagY);
-
-  // Draw actual sagging cable
-  svg.appendChild(createLine(startX, anchorStartY, sagX, sagY, cableColor, 2));
-  svg.appendChild(createLine(sagX, sagY, endX, anchorEndY, cableColor, 2));
-  svg.appendChild(createCircle(sagX, sagY, 3, "red"));
-
-  // Draw dashed un-sagged reference line
-  svg.appendChild(
-    createLine(startX, anchorStartY, endX, anchorEndY, "#ccc", 1)
+  console.log(
+    "drawCable called with:",
+    { startX, startY, endX, endY, sagX, sagY, sagFt, sagPointPercentFromStart, isSafe }
   );
 
-  // Annotate
-  let label = "Cable Sag Point";
-  if (sagFeet !== null && sagPointPercent !== null) {
-    label += `\n${sagFeet.toFixed(1)} ft sag @ ${fromStartPercent.toFixed(1)}% from start`;
+  const cableColor = isSafe ? CABLE_COLOR_SAFE : CABLE_COLOR_UNSAFE;
+
+  // The "Not Safe" label and sound should only trigger if `isSafe` is false
+  if (!isSafe) {
+    drawNotSafe(svg, sagX ?? (startX + endX) / 2, sagY ?? (startY + endY) / 2);
   }
 
-  svg.appendChild(createText(sagX - 45, sagY - 25, label));
+  if (sagX !== null && sagY !== null) {
+    // Draw sagging cable in two segments
+    svg.appendChild(createLine(startX, startY, sagX, sagY, cableColor, CABLE_THICKNESS));
+    svg.appendChild(createLine(sagX, sagY, endX, endY, cableColor, CABLE_THICKNESS));
+    // Draw a small red circle at the sag point
+    svg.appendChild(createCircle(sagX, sagY, 3, "red"));
+
+    // Annotate the sag point with its value and position
+    let label = "Cable Sag Point";
+    // Check if sagFt and sagPointPercentFromStart are valid numbers before using toFixed
+    if (typeof sagFt === 'number' && typeof sagPointPercentFromStart === 'number') {
+      label += `\n(${sagFt.toFixed(1)} ft sag @ ${sagPointPercentFromStart.toFixed(1)}% from start)`;
+    }
+
+    // Position the label slightly above and to the left of the sag point
+    svg.appendChild(createText(sagX - 45, sagY - 25, label));
+  } else {
+    // Draw straight cable if no sag point is provided
+    svg.appendChild(createLine(startX, startY, endX, endY, cableColor, CABLE_THICKNESS));
+  }
+
+  // Draw a dashed reference line representing a straight line between anchors
+  // This helps visualize the sag
+  svg.appendChild(createLine(startX, startY, endX, endY, "#ccc", 1, [4, 4]));
 }
 
-// Returns the default safe cable color
-export function drawSafe(svg, cableColor = "black") {
-  return cableColor;
-}
+// --- Helper functions ---
 
 // Adds a red warning label and plays a crash sound
 export function drawNotSafe(svg, midX, midY) {
-  const cableColor = "red";
-  svg.appendChild(createText(midX - 20, midY - 100, "⚠ DANGER! Not Safe!", "red"));
-  playCrashSound();
-  return cableColor;
+  svg.appendChild(createText(midX - 20, midY - 100, "⚠ DANGER! Not Safe!", 10, CABLE_COLOR_UNSAFE));
+  playCrashSound(); 
 }
 
-// Sound effect on collision or failed safety check
+// Ensure playBeep is correctly imported for playCrashSound or define it here
+// if it's a local helper for this file.
 function playCrashSound() {
-  //const audio = new Audio("sounds/crash.mp3");
-  //audio.play();
-  playBeep(); // Fallback to a simple beep sound
-}
-
-export function getCableColorBasedOnClearance(geometry, svg, x, y) {
-  if (!geometry) return "black";
-  return geometry.isSafe ? drawSafe(svg) : drawNotSafe(svg, x, y);
-}
-
-// Create one global AudioContext
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-
-export function playBeep() {
-  if (audioCtx.state === "suspended") {
-    audioCtx.resume();
-  }
-
-  const oscillator = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-
-  oscillator.type = "triangle"; // "sine" "square", "triangle", "sawtooth"
-  oscillator.frequency.value = 880; // Hz kind of high
-
-  oscillator.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  oscillator.start();
-  oscillator.stop(audioCtx.currentTime + 0.15); // 150ms
-
-  // Optional: brief fade-out to avoid click sound
-  gain.gain.setValueAtTime(1, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+  playBeep();
 }

@@ -1,201 +1,124 @@
+// draw_trees.js
 import { createLine, createCircle, createText } from "./draw_utils.js";
 
-const XOFFSET_START = 7;
-const XOFFSET_END = 120;
-const YOFFSET_HT = 20;
-const YOFFSET_DELTA = 50;
 const TRUNK_OPACITY = 0.6;
 const TRUNK_WIDTH = 10;
+const TREE_TOP_RADIUS = 10; // Consistent radius for tree top circles
+const TREE_TOP_COLOR = "green";
+const TREE_HEIGHT_MULTIPLIER = 1.3; // Multiplier to extend tree above anchor
 
-export function getGroundStartY({ axisY }) {
-  return axisY;
-}
-
-export function getAnchorStartY({ groundY, cableDropFeet, pixelsPerFoot }) {
-  return groundY - cableDropFeet * pixelsPerFoot;
-}
-
-export function getTreeHeightFeet({
-  groundY,
-  anchorY,
-  paddingFeet = 2,
-  pixelsPerFoot,
-}) {
-  const anchorHeightFeet = (groundY - anchorY) / pixelsPerFoot;
-  return anchorHeightFeet + paddingFeet;
-}
-
-export function computeTreeHeightFeet({
-  cableDropFeet,
-  sagFeet,
-  seatDropFeet,
-  clearanceFeet,
-  slopeDeltaFeet = 0,
-  paddingFeet = 2,
-}) {
-  const midlineDropFeet =
-    cableDropFeet + sagFeet + seatDropFeet + clearanceFeet;
-  const effectiveHeight = midlineDropFeet - slopeDeltaFeet;
-  return effectiveHeight + paddingFeet;
-}
-
-export function drawTree({ svg, x, groundY, heightFeet, pixelsPerFoot }) {
-  const treeTopY = groundY - heightFeet * pixelsPerFoot;
-  svg.appendChild(createLine(x, groundY, x, treeTopY, "#654321", 6));
-  svg.appendChild(createCircle(x, treeTopY, 10, "green"));
-}
-
-export function drawStartTree({
+/**
+ * Draws start tree.
+ * tree trunk will be drawn from start ground level, extending beyond anchor point.
+ * tree top (green circle) will be at very top of this extended trunk.
+ *
+ * @param {SVGElement} svg - SVG container to draw on.
+ * @param {number} startAnchorXPx - X pixel coordinate of start anchor.
+ * @param {number} startGroundYPx - Y pixel coordinate of ground at start tree's base.
+ * @param {number} startAnchorAtStartGroundYPx - Y pixel coordinate of start anchor relative to start ground.
+ * This is effective Y-coordinate of anchor.
+ */
+export function drawStartTree(
   svg,
-  startX,
-  anchorStartY,
-  startGroundY,
-  endGroundY,
-  pixelsPerFoot,
-  cableDropFeet,
-  sagFeet,
-  seatDropFeet,
-  clearanceFeet,
-  startAnchorAboveStartGroundFeet,
-  startAnchorAboveEndGroundFeet,
-}) {
-  // Draw the tree trunk
-  
-  const treeHeightFeet = computeTreeHeightFeet({
-    cableDropFeet,
-    sagFeet,
-    seatDropFeet,
-    clearanceFeet,
-  });
-  const treeHeightPixels = treeHeightFeet * pixelsPerFoot;
-  const trunkBaseY = startGroundY;
-  const trunkTopY = trunkBaseY - treeHeightPixels;
+  startAnchorXPx,
+  startGroundYPx,
+  endGroundYPx, // Still passed, but not directly used for this tree's trunk calculation
+  startAnchorAtEndGroundYPx, // Still passed, but not directly used for this tree's trunk calculation
+  startAnchorAtStartGroundYPx // This is key Y for anchor point.
+) {
+  console.log(
+    "drawStartTree called with precise pixel values:",
+    {
+      startAnchorXPx,
+      startGroundYPx,
+      startAnchorAtStartGroundYPx, // actual Y-pixel for anchor
+    }
+  );
 
+  // Calculate height of tree from ground up to anchor point (in pixels)
+  const anchorToGroundHeightPx = startGroundYPx - startAnchorAtStartGroundYPx;
+
+  // Calculate top of tree by extending it beyond anchor
+  // Y increases downwards, so we subtract to go "up"
+  const trunkTopY = startAnchorAtStartGroundYPx - (anchorToGroundHeightPx * (TREE_HEIGHT_MULTIPLIER - 1));
+
+  
+  // Draw tree trunk (from ground up to extended top)
   const trunk = createLine(
-    startX,
-    trunkBaseY,
-    startX,
-    trunkTopY,
+    startAnchorXPx,             // X-coordinate of trunk
+    startGroundYPx,             // Bottom Y-coordinate of trunk (on ground)
+    startAnchorXPx,             // X-coordinate of trunk
+    trunkTopY,                  // Top Y-coordinate of trunk (extended)
     "saddlebrown",
-    TRUNK_WIDTH, TRUNK_OPACITY
+    TRUNK_WIDTH,
+    TRUNK_OPACITY
   );
   svg.appendChild(trunk);
+  console.log(`Start tree trunk drawn from X:${startAnchorXPx} Y:${startGroundYPx} to X:${startAnchorXPx} Y:${trunkTopY}`);
 
-  // Draw tree top
-  svg.appendChild(createCircle(startX, trunkTopY, 10, "green"));
 
-  // Label: Start Anchor height above End Ground
-  labelStartAnchorHeightAboveGroundEnd(
-    svg,
-    startX,
-    anchorStartY,
-    startAnchorAboveEndGroundFeet
-  );
-
-  // Label: Start Anchor height above Start Ground
-  labelStartAnchorHeightAboveGroundStart(
-    svg,
-    startX,
-    anchorStartY,
-    startAnchorAboveStartGroundFeet
-  );
-
-  // Label: Anchor delta (Start Anchor vs End Anchor)
-  labelStartAnchorToAnchorDelta(svg, startX, anchorStartY, cableDropFeet);
+  // Draw tree top (green circle at *extended top of trunk*)
+  svg.appendChild(createCircle(startAnchorXPx, trunkTopY, TREE_TOP_RADIUS, TREE_TOP_COLOR));
+  console.log(`Start tree top drawn at X:${startAnchorXPx} Y:${trunkTopY}`);
 }
 
-function labelStartAnchorHeightAboveGroundEnd(
+/**
+ * Draws end tree.
+ * tree trunk will be drawn from end ground level, extending beyond anchor point.
+ * tree top (green circle) will be at very top of this extended trunk.
+ *
+ * @param {SVGElement} svg - SVG container to draw on.
+ * @param {number} endAnchorXPx - X pixel coordinate of end anchor.
+ * @param {number} axisYPx - Y pixel coordinate of main SVG axis/end ground baseline (effectively endGroundYPx).
+ * @param {number} endAnchorYPx - Y pixel coordinate of end anchor.
+ */
+export function drawEndTree(
   svg,
-  startX,
-  anchorStartY,
-  startAnchorAboveEndGroundFeet 
+  endAnchorXPx,
+  axisYPx, 
+  endAnchorYPx
 ) {
-  svg.appendChild(
-    createText(
-      startX + XOFFSET_START,
-      anchorStartY - YOFFSET_HT,
-      `(Start Anchor=${startAnchorAboveEndGroundFeet.toFixed(1)}ft above End Ground)`
-    )
+  console.log(
+    "drawEndTree called with precise pixel values:",
+    {
+      endAnchorXPx,
+      axisYPx,      
+      endAnchorYPx, // actual Y-pixel for end anchor
+    }
   );
+
+  // Calculate height of tree from ground up to anchor point (in pixels)
+  const anchorToGroundHeightPx = axisYPx - endAnchorYPx;
+
+  // Calculate top of tree by extending it beyond anchor
+  // Y increases downwards, so we subtract to go "up"
+  const trunkTopY = endAnchorYPx - (anchorToGroundHeightPx * (TREE_HEIGHT_MULTIPLIER - 1));
+
+  // Draw tree trunk (from ground up to extended top)
+  const trunk = createLine(
+    endAnchorXPx,       // X-coordinate of trunk
+    axisYPx,            // Bottom Y-coordinate of trunk (on ground)
+    endAnchorXPx,       // X-coordinate of trunk
+    trunkTopY,          // Top Y-coordinate of trunk (extended)
+    "saddlebrown",
+    TRUNK_WIDTH,
+    TRUNK_OPACITY
+  );
+  svg.appendChild(trunk);
+  console.log(`End tree trunk drawn from X:${endAnchorXPx} Y:${axisYPx} to X:${endAnchorXPx} Y:${trunkTopY}`);
+
+
+  // Draw tree top (green circle at *extended top of trunk*)
+  svg.appendChild(createCircle(endAnchorXPx, trunkTopY, TREE_TOP_RADIUS, TREE_TOP_COLOR));
+  console.log(`End tree top drawn at X:${endAnchorXPx} Y:${trunkTopY}`);
 }
 
-function labelStartAnchorHeightAboveGroundStart(
-  svg,
-  startX,
-  anchorStartY,
-  startAnchorAboveStartGroundFeet
-) {
-  svg.appendChild(
-    createText(
-      startX + XOFFSET_START,
-      anchorStartY - YOFFSET_HT - 12,
-      `Start Anchor = ${startAnchorAboveStartGroundFeet.toFixed(1)} ft above Start Ground`
-    )
-  );
-}
-
-function labelStartAnchorToAnchorDelta(
-  svg,
-  startX,
-  anchorStartY,
-  cableDropFeet
-) {
-  svg.appendChild(
-    createText(
-      startX + XOFFSET_START,
-      anchorStartY - YOFFSET_DELTA,
-      `Start Anchor=${cableDropFeet}ft above End Anchor`
-    )
-  );
-}
-
-export function drawEndTree({
-  svg,
-  endX,
-  axisY,
-  anchorEndY,
-  cableDropFeet,
-  pixelsPerFoot,
-}) {
-  const endAnchorAboveEndGroundFeet = (axisY - anchorEndY) / pixelsPerFoot;
-  const treeHeightFeet = endAnchorAboveEndGroundFeet + 2;
-  const treeHeightPixels = treeHeightFeet * pixelsPerFoot;
-  const trunkBaseY = axisY;
-  const trunkTopY = trunkBaseY - treeHeightPixels;
-
-  // Trunk
-  svg.appendChild(
-    createLine(endX, trunkBaseY, endX, trunkTopY, "saddlebrown", TRUNK_WIDTH, TRUNK_OPACITY)
-  );
-  // Tree top
-  svg.appendChild(createCircle(endX, trunkTopY, 10, "green"));
-
-  labelEndAnchorHeight(
-    svg,
-    endX,
-    anchorEndY,
-    endAnchorAboveEndGroundFeet.toFixed(1)
-  );
-
-  labelEndAnchorToAnchorDelta(svg, endX, anchorEndY, cableDropFeet);
-}
-
-function labelEndAnchorToAnchorDelta(svg, endX, anchorEndY, cableDropFeet) {
-  svg.appendChild(
-    createText(
-      endX - XOFFSET_END,
-      anchorEndY - YOFFSET_DELTA,
-      `End Anchor=${cableDropFeet}ft below Start Anchor`
-    )
-  );
-}
-
-function labelEndAnchorHeight(svg, endX, anchorEndY, anchorHeightRounded) {
-  svg.appendChild(
-    createText(
-      endX - XOFFSET_END,
-      anchorEndY - YOFFSET_HT,
-      `End Anchor=${anchorHeightRounded}ft above End Ground`
-    )
-  );
-}
+// Re-exporting label functions for draw.js
+// Implementation is in draw_tree_labels.js
+export {
+  labelStartAnchorHeightAboveGroundEnd,
+  labelStartAnchorHeightAboveGroundStart,
+  labelStartAnchorToAnchorDelta,
+  labelEndAnchorToAnchorDelta,
+  labelEndAnchorHeight,
+} from "./draw_tree_labels.js";

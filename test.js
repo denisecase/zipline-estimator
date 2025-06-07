@@ -1,4 +1,4 @@
-import { calcGeo } from "./calcs.js";
+import { calcGeo } from "./calc_geo.js";
 import { computeVelocity, computeRideTime } from "./utils.js";
 
 function runTestCases() {
@@ -6,76 +6,76 @@ function runTestCases() {
     {
       label: "Flat Ground, No Drop, No Sag",
       input: {
-        runFeet: 60,
-        slopeDeltaFeet: 0,
-        cableDropFeet: 0,
-        seatDropFeet: 2,
-        clearanceFeet: 1,
-        initialEndAnchorHeightFeet: 5,
+        runFt: 60,
+        slopeDeltaFt: 0,
+        cableDropFt: 0,
+        seatDropFt: 2,
+        clearanceFt: 1,
+        endAnchorHeightFromEndGroundFt: 5,
         riderWeightLbs: 250,
         riderSagTable: [
-          { rider_weight_lbs: 60, sag_point_percent: 41, sag_vertical_ft: 0 },
-          { rider_weight_lbs: 250, sag_point_percent: 50, sag_vertical_ft: 0 },
+          { riderWeightLbs: 60, sagPointPercentFromEnd: 41, sagBelowStartAnchorFt: 0 },
+          { riderWeightLbs: 250, sagPointPercentFromEnd: 50, sagBelowStartAnchorFt: 0 },
         ],
       },
     },
     {
       label: "Flat Ground, Moderate Drop and Sag",
       input: {
-        runFeet: 80,
-        slopeDeltaFeet: 0,
-        cableDropFeet: 4,
-        seatDropFeet: 3,
-        clearanceFeet: 2,
-        initialEndAnchorHeightFeet: 5,
+        runFt: 80,
+        slopeDeltaFt: 0,
+        cableDropFt: 4,
+        seatDropFt: 3,
+        clearanceFt: 2,
+        endAnchorHeightFromEndGroundFt: 5,
         riderWeightLbs: 250,
         riderSagTable: [
-          { rider_weight_lbs: 250, sag_point_percent: 50, sag_vertical_ft: 3 },
+          { riderWeightLbs: 250, sagPointPercentFromEnd: 50, sagBelowStartAnchorFt: 3 },
         ],
       },
     },
     {
       label: "Uphill Ground (Reverse Slope), Sagging Line",
       input: {
-        runFeet: 100,
-        slopeDeltaFeet: 5,
-        cableDropFeet: 6,
-        seatDropFeet: 3.5,
-        clearanceFeet: 2.5,
-        initialEndAnchorHeightFeet: 6,
+        runFt: 100,
+        slopeDeltaFt: 5,
+        cableDropFt: 6,
+        seatDropFt: 3.5,
+        clearanceFt: 2.5,
+        endAnchorHeightFromEndGroundFt: 6,
         riderWeightLbs: 250,
         riderSagTable: [
-          { rider_weight_lbs: 250, sag_point_percent: 50, sag_vertical_ft: 4 },
+          { riderWeightLbs: 250, sagPointPercentFromEnd: 50, sagBelowStartAnchorFt: 4 },
         ],
       },
     },
     {
       label: "Downhill Ground, Extreme Sag",
       input: {
-        runFeet: 90,
-        slopeDeltaFeet: -8,
-        cableDropFeet: 3,
-        seatDropFeet: 3,
-        clearanceFeet: 2,
-        initialEndAnchorHeightFeet: 5,
+        runFt: 90,
+        slopeDeltaFt: -8,
+        cableDropFt: 3,
+        seatDropFt: 3,
+        clearanceFt: 2,
+        endAnchorHeightFromEndGroundFt: 5,
         riderWeightLbs: 250,
         riderSagTable: [
-          { rider_weight_lbs: 250, sag_point_percent: 50, sag_vertical_ft: 6 },
+          { riderWeightLbs: 250, sagPointPercentFromEnd: 50, sagBelowStartAnchorFt: 6 },
         ],
       },
     },
     {
       label: "Short Run, High Clearance Needed",
       input: {
-        runFeet: 30,
-        slopeDeltaFeet: 1,
-        cableDropFeet: 2,
-        seatDropFeet: 2,
-        clearanceFeet: 4,
-        initialEndAnchorHeightFeet: 4,
+        runFt: 30,
+        slopeDeltaFt: 1,
+        cableDropFt: 2,
+        seatDropFt: 2,
+        clearanceFt: 4,
+        endAnchorHeightFromEndGroundFt: 4,
         riderWeightLbs: 250,
         riderSagTable: [
-          { rider_weight_lbs: 250, sag_point_percent: 50, sag_vertical_ft: 1 },
+          { riderWeightLbs: 250, sagPointPercentFromEnd: 50, sagBelowStartAnchorFt: 1 },
         ],
       },
     },
@@ -107,18 +107,18 @@ function runTestCases() {
 
   testCases.forEach(({ label, input }) => {
     const result = calcGeo(input);
-    const maxDrop = result.maxDropFeet ?? result.cableDropFeet + result.sagFeet;
+    const maxDrop = result.maxDropFt ?? result.cableDropFt + result.sagFt;
     const velocityFPS = computeVelocity(maxDrop);
     const velocityMPH = velocityFPS * 0.681818;
-    const rideTime = computeRideTime(result.runFeet, velocityFPS);
+    const rideTime = computeRideTime(result.runFt, velocityFPS);
 
     const row = `
       <tr>
         <td>${label}</td>
-        <td>${input.runFeet}</td>
-        <td>${input.cableDropFeet}</td>
-        <td>${input.seatDropFeet}</td>
-        <td>${input.clearanceFeet}</td>
+        <td>${input.runFt}</td>
+        <td>${input.cableDropFt}</td>
+        <td>${input.seatDropFt}</td>
+        <td>${input.clearanceFt}</td>
         <td>${maxDrop.toFixed(2)}</td>
         <td>${velocityFPS.toFixed(1)}</td>
         <td>${velocityMPH.toFixed(1)}</td>

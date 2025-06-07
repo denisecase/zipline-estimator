@@ -1,23 +1,23 @@
 {
-  "runFeet": 81,
-  "slopeDeltaFeet": 3.5,
-  "cableDropFeet": 4,
-  "seatDropFeet": 3.5,
-  "clearanceFeet": 2,
-  "initialEndAnchorHeightFeet": 8,
-  "transitionPointRatio": 70,
-  "earlySlopeRatio": 35,
-  "riderWeightLbs": 250,
+  "runFt": 81,
+  "slopeDeltaFt": 3.5,
+  "transitionPointPercent": 67,
+  "earlySlopePercent": 20,
+  "cableDropFt": 4,
+  "endAnchorHeightFromEndGroundFt": 11,
+  "seatDropFt": 3.0,
+  "clearanceFt": 2,
+  "riderWeightLbs": 180,
   "riderSagTable": [
     {
-      "rider_weight_lbs": 60,
-      "sag_point_percent": 41,
-      "sag_vertical_ft": 5.2
+      "riderWeightLbs": 60,
+      "sagPointPercentFromEnd": 41,
+      "sagBelowStartAnchorFt": 5.2
     },
     {
-      "rider_weight_lbs": 250,
-      "sag_point_percent": 44,
-      "sag_vertical_ft": 6.2
+      "riderWeightLbs": 250,
+      "sagPointPercentFromEnd": 44,
+      "sagBelowStartAnchorFt": 6.2
     }
   ]
 }

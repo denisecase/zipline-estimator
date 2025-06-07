@@ -1,131 +1,237 @@
+// draw.js
+
+import { calcDwg } from "./calc_dwg.js";
+
 import { drawAxes } from "./draw_axes.js";
 import { drawCable } from "./draw_cable.js";
 import { drawSeatAssembly, drawMidlineLabel } from "./draw_midline.js";
 import { drawStartTree, drawEndTree } from "./draw_trees.js";
 import { drawGround, labelGroundSlopeAtStart } from "./draw_ground.js";
+import {
+  labelStartAnchorHeightAboveGroundEnd,
+  labelStartAnchorHeightAboveGroundStart,
+  labelStartAnchorToAnchorDelta,
+  labelEndAnchorToAnchorDelta,
+  labelEndAnchorHeight,
+} from "./draw_tree_labels.js";
+import { isCrashAtSagPoint } from "./calc_crash.js";
+import { playBeep } from "./audio.js";
 
+function playCrashSound() {
+  playBeep(); // Fallback to a simple beep sound
+}
+
+/**
+ * Draws the complete zipline diagram on an SVG canvas.
+ * This function takes a pre-calculated 'geo' object and then uses 'calcDwg'
+ * to convert it into pixel coordinates for drawing.
+ * If any calculation or drawing step fails, it logs an error, plays a sound, and stops.
+ *
+ * @param {object} geo - The comprehensive geometry object returned by calcGeo,
+ * containing all real-world (feet) measurements and elevations.
+ */
 export function drawZipline(geo) {
+  console.log("drawZipline called with geo:", geo);
   const svg = document.getElementById("zipline-diagram");
-  svg.innerHTML = "";
+  svg.innerHTML = ""; // Clear previous drawing
 
-  const pixelsPerFoot = 10;
-  const margin_pixels = 50;
-  const svg_height_pixels = 300;
-  const svg_width_pixels = geo.runFeet * pixelsPerFoot + margin_pixels * 2;
+  // Step 1: Convert real-world geometry (geo) to pixel coordinates (dwg)
+  let dwg;
+  try {
+    dwg = calcDwg(geo); 
+    console.log("calcDwg completed successfully");
+  } catch (err) {
+    console.error("calcDwg failed:", err);
+    playCrashSound();
+    return; // Stop if pixel calculation fails
+  }
 
-  svg.setAttribute("width", svg_width_pixels);
-  svg.setAttribute("height", svg_height_pixels);
+  // Set SVG canvas dimensions using values from the dwg object
+  svg.setAttribute("width", dwg.svgWidthPx);
+  svg.setAttribute("height", dwg.svgHeightPx);
 
-  const axisY_pixels = svg_height_pixels - margin_pixels;
+  // --- DRAW AXES ---
+  try {
+    drawAxes(
+      geo.runFt, //  for axis labels/context 
+      dwg.marginPx,
+      dwg.pixelsPerFoot,
+      svg,
+      dwg.axisYPx,
+      dwg.svgWidthPx - dwg.marginPx // The effective end X of drawable area
+    );
+    console.log("drawAxes completed successfully");
+  } catch (err) {
+    console.error("drawAxes failed:", err);
+    playCrashSound();
+    return;
+  }
 
-  const startX_pixels = margin_pixels + geo.startXFt * pixelsPerFoot;
-  const endX_pixels = margin_pixels + geo.endXFt * pixelsPerFoot;
-  const midX_pixels = margin_pixels + geo.midXFt * pixelsPerFoot;
+  // --- DRAW GROUND ---
+  try {
+    drawGround(
+      svg,
+      dwg.startGroundXPx,
+      dwg.startGroundYPx,
+      dwg.endGroundXPx,
+      dwg.endGroundYPx,
+      dwg.transitionGroundXPx, // Pass the pre-calculated X-pixel for the transition point
+      dwg.transitionGroundYPx // Pass the pre-calculated Y-pixel for the transition point
+    );
+    console.log("drawGround completed successfully");
+  } catch (err) {
+    console.error("drawGround failed:", err);
+    playCrashSound();
+    return;
+  }
 
-  const startGroundY_pixels = axisY_pixels - geo.startGroundElevationFt * pixelsPerFoot;
-  const endGroundY_pixels = axisY_pixels - geo.endGroundElevationFt * pixelsPerFoot;
-  const anchorStartY_pixels = axisY_pixels - geo.startAnchorElevationFt * pixelsPerFoot;
-  const anchorEndY_pixels = axisY_pixels - geo.endAnchorElevationFt * pixelsPerFoot;
-  const midY_pixels = axisY_pixels - geo.midCableElevationFt * pixelsPerFoot;
+  // --- DRAW TREES AND RELATED LABELS ---
+  try {
+    drawStartTree(
+      svg,
+      dwg.startAnchorXPx, // X-coordinate for the start tree
+      dwg.startGroundYPx, // Y-coordinate of the start ground at the tree base
+      dwg.endGroundYPx, // Y-coordinate of the end ground baseline (for relative drawing)
+      dwg.startAnchorAtEndGroundYPx, // Y-coordinate of the start anchor relative to end ground
+      dwg.startAnchorAtStartGroundYPx // Y-coordinate of the start anchor relative to start ground
+    );
+    console.log("drawStartTree completed successfully");
 
-  console.log("Calculated Geometry (Feet):", geo);
-  console.log("Transformed Pixels:", {
-    startX_pixels,
-    endX_pixels,
-    midX_pixels,
-    startGroundY_pixels,
-    endGroundY_pixels,
-    anchorStartY_pixels,
-    anchorEndY_pixels,
-    midY_pixels,
-    axisY_pixels,
-  });
+    // Label: Start Anchor height above End Ground
+    labelStartAnchorHeightAboveGroundEnd(
+      svg,
+      dwg.startAnchorXPx,
+      dwg.startAnchorYPx, // Primary anchor Y for consistent labeling position
+      dwg.labelStartAnchorAboveEndGroundFt // Display the FT value (from geo, passed through dwg)
+    );
 
-  drawCable(
-    svg,
-    startX_pixels,
-    anchorStartY_pixels,
-    endX_pixels,
-    anchorEndY_pixels,
-    geo.runFeet,
-    pixelsPerFoot,
-    geo.sagFeet,
-    geo.sagPointPercent,
-    geo
-  );
+    // Label: Start Anchor height above Start Ground
+    labelStartAnchorHeightAboveGroundStart(
+      svg,
+      dwg.startAnchorXPx,
+      dwg.startAnchorAtStartGroundYPx, // Specific Y for label relative to start ground
+      dwg.labelStartAnchorAboveStartGroundFt // Display the FT value (from geo, passed through dwg)
+    );
 
-  const fromStartPercent = 100 - geo.sagPointPercent;
-  const sagX_pixels = startX_pixels + geo.runFeet * (fromStartPercent / 100) * pixelsPerFoot;
-  const sagAnchorY_pixels = (anchorStartY_pixels + anchorEndY_pixels) / 2;
-  const sagY_pixels = sagAnchorY_pixels + geo.sagFeet * pixelsPerFoot;
+    // Label: Anchor delta (Start Anchor vs End Anchor)
+    labelStartAnchorToAnchorDelta(
+      svg,
+      dwg.startAnchorXPx,
+      dwg.startAnchorYPx, // Primary anchor Y
+      dwg.cableDropFt // Display the FT value (from geo, passed through dwg)
+    );
+    console.log("Start tree labels completed successfully");
+  } catch (err) {
+    console.error("drawStartTree or related labels failed:", err);
+    playCrashSound();
+    return; 
+  }
 
-  drawSeatAssembly(
-    svg,
-    sagX_pixels,
-    sagY_pixels,
-    geo.seatDropFeet,
-    geo.clearanceFeet,
-    pixelsPerFoot,
-    geo.isSafe
-  );
+  try {
+    drawEndTree(
+      svg,
+      dwg.endAnchorXPx, // X-coordinate for the end tree
+      dwg.axisYPx, // Y-coordinate of the axis baseline (end ground is often here)
+      dwg.endAnchorYPx // Y-coordinate for the end anchor
+    );
+    console.log("drawEndTree completed successfully");
 
-  drawMidlineLabel(
-    geo.sagFeet,
-    geo.seatDropFeet,
-    geo.clearanceFeet,
-    midY_pixels,
-    svg,
-    midX_pixels
-  );
+    labelEndAnchorHeight(
+      svg,
+      dwg.endAnchorXPx,
+      dwg.endAnchorYPx,
+      dwg.labelEndAnchorHeightFromEndGroundFt.toFixed(1) // Display the FT value (from geo, passed through dwg)
+    );
 
-  drawGround(
-    svg,
-    startX_pixels,
-    startGroundY_pixels,
-    endX_pixels,
-    axisY_pixels,
-    geo.transitionPointRatio,
-    geo.earlySlopeRatio
-  );
+    labelEndAnchorToAnchorDelta(
+      svg,
+      dwg.endAnchorXPx,
+      dwg.endAnchorYPx,
+      dwg.cableDropFt // Display the FT value (from geo, passed through dwg)
+    );
+    console.log("End tree labels completed successfully");
+  } catch (err) {
+    console.error("drawEndTree or related labels failed:", err);
+    playCrashSound();
+    return; 
+  }
 
-  labelGroundSlopeAtStart(
-    svg,
-    startX_pixels,
-    startGroundY_pixels,
-    geo.slopeDeltaFeet
-  );
+  // --- DRAW SAGGING CABLE ---
+  try {
+    drawCable(
+      svg,
+      dwg.startAnchorXPx,
+      dwg.startAnchorYPx,
+      dwg.endAnchorXPx,
+      dwg.endAnchorYPx,
+      dwg.sagPointXPx,
+      dwg.sagPointYPx,
+      geo.sagFtFromCableAtSagPointFt, // Pass sagFt (from geo object)
+      geo.sagPointPercentFromEnd, // Pass sagPointPercent (from geo object)
+      geo.isSafe // Pass isSafe (from geo object)
+    );
+    console.log("drawCable completed successfully");
+  } catch (err) {
+    console.error("drawCable failed:", err);
+    playCrashSound();
+    return;
+  }
 
-  drawStartTree({
-    svg,
-    startX: startX_pixels,
-    anchorStartY: anchorStartY_pixels,
-    startGroundY: startGroundY_pixels,
-    endGroundY: endGroundY_pixels,
-    pixelsPerFoot: pixelsPerFoot,
-    cableDropFeet: geo.cableDropFeet,
-    sagFeet: geo.sagFeet,
-    seatDropFeet: geo.seatDropFeet,
-    clearanceFeet: geo.clearanceFeet,
-    startAnchorAboveStartGroundFeet: geo.startAnchorAboveStartGroundFeet,
-    startAnchorAboveEndGroundFeet: geo.startAnchorAboveEndGroundFeet,
-  });
+  // --- DRAW SEAT ASSEMBLY ---
+  try {
+    drawSeatAssembly(
+      svg,
+      dwg.sagPointXPx,
+      dwg.sagPointYPx,
+      dwg.seatDropFt, //  internal scaling within drawSeatAssembly
+      dwg.clearanceFt, //  internal scaling within drawSeatAssembly
+      dwg.pixelsPerFoot //  internal scaling by drawSeatAssembly
+    );
+    console.log("drawSeatAssembly completed successfully");
+  } catch (err) {
+    console.error("drawSeatAssembly failed:", err);
+    playCrashSound();
+    return;
+  }
 
-  drawEndTree({
-    svg,
-    endX: endX_pixels,
-    axisY: axisY_pixels,
-    anchorEndY: anchorEndY_pixels,
-    cableDropFeet: geo.cableDropFeet,
-    pixelsPerFoot: pixelsPerFoot,
-    endAnchorAboveEndGroundFeet: geo.endAnchorAboveEndGroundFeet,
-  });
+  // --- DRAW MIDLINE LABEL ---
+  try {
+    drawMidlineLabel(
+      dwg.sagFt, // Sag value (in ft) for label text
+      dwg.seatDropFt, // Seat drop (in ft) for label text
+      dwg.clearanceFt, // Clearance (in ft) for label text
+      dwg.midLineYPx, // Midline Y pixel position
+      svg,
+      dwg.midLineXPx // Midline X pixel position
+    );
+    console.log("drawMidlineLabel completed successfully");
+  } catch (err) {
+    console.error("drawMidlineLabel failed:", err);
+    playCrashSound();
+    return;
+  }
 
-  drawAxes(
-    geo.runFeet,
-    startX_pixels,
-    pixelsPerFoot,
-    svg,
-    axisY_pixels,
-    endX_pixels
-  );
+  // --- LABEL GROUND SLOPE ---
+  try {
+    labelGroundSlopeAtStart(
+      svg,
+      dwg.startGroundXPx,
+      dwg.startGroundYPx,
+      dwg.slopeDeltaFt // Slope delta (in ft) for label text
+    );
+    console.log("labelGroundSlopeAtStart completed successfully");
+  } catch (err) {
+    console.error("labelGroundSlopeAtStart failed:", err);
+    playCrashSound();
+    return;
+  }
+
+  // --- FINAL SAFETY CHECK ---
+  // This check uses the 'geo' object directly as it operates on the physical/logical model,
+  // not the visual representation. It does not stop drawing, but indicates an unsafe condition.
+  geo.isSafe = !isCrashAtSagPoint(geo);
+  if (!geo.isSafe) {
+    console.warn("Safety check failed: A crash is detected at the sag point.");
+    playCrashSound(); 
+  }
 }

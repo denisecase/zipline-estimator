@@ -1,56 +1,48 @@
+// draw_ground.js
+
 import { createLine, createText } from "./draw_utils.js";
+
+const GROUND_COLOR = "green";
 
 export function drawGround(
   svg,
-  startX_pixels,
-  startGroundY_pixels,
-  endX_pixels,
-  axisY_pixels,
-  transitionPointRatio,
-  earlySlopeRatio
+  startGroundXPx,      // dwg.startGroundXPx
+  startGroundYPx,      // dwg.startGroundYPx
+  endGroundXPx,        // dwg.endGroundXPx
+  endGroundYPx,        // dwg.endGroundYPx
+  transitionGroundXPx, // dwg.transitionGroundXPx
+  transitionGroundYPx  // dwg.transitionGroundYPx
 ) {
   console.log(
     "drawGround called with:",
-    startX_pixels,
-    startGroundY_pixels,
-    endX_pixels,
-    axisY_pixels,
-    transitionPointRatio,
-    earlySlopeRatio
+    startGroundXPx,
+    startGroundYPx,
+    endGroundXPx,
+    endGroundYPx,
+    transitionGroundXPx,
+    transitionGroundYPx
   );
 
-  // Total horizontal and vertical differences
-  const runPixels = endX_pixels - startX_pixels;
-  const totalDropPixels = axisY_pixels - startGroundY_pixels;
-  console.log("runPixels, totalDropPixels", runPixels, totalDropPixels);
-
-  // Calculate the transition point based on the ratios
-  // X of transition point (horizontal position)
-  const transitionX = startX_pixels + (transitionPointRatio / 100) * runPixels;
-  console.log("transitionX", transitionX);
-
-  // Y of transition point (vertical position)
-  const transitionY =
-    startGroundY_pixels + (earlySlopeRatio / 100) * totalDropPixels;
-
-  if (transitionX > endX_pixels) {
-    console.warn("transitionX exceeds diagram width — clamping to endX");
-  }
-
-  // Draw first ground slope
+  // Draw first ground slope segment
   svg.appendChild(
     createLine(
-      startX_pixels,
-      startGroundY_pixels,
-      transitionX,
-      transitionY,
-      "brown"
+      startGroundXPx,
+      startGroundYPx,
+      transitionGroundXPx, // Use pre-calculated X
+      transitionGroundYPx, // Use pre-calculated Y
+      GROUND_COLOR
     )
   );
 
-  // Draw second ground slope
+  // Draw second ground slope segment
   svg.appendChild(
-    createLine(transitionX, transitionY, endX_pixels, axisY_pixels, "brown")
+    createLine(
+      transitionGroundXPx, // Start from transition point
+      transitionGroundYPx, // Start from transition point
+      endGroundXPx,
+      endGroundYPx,
+      GROUND_COLOR
+    )
   );
 }
 
@@ -58,9 +50,9 @@ export function labelGroundSlopeAtStart(
   svg,
   startX,
   startGroundY,
-  slopeDeltaFeet
+  slopeDeltaFt
 ) {
   const XOFFSET_START = 5;
-  const label = `Start Ground = ${slopeDeltaFeet.toFixed(1)} ft above End`;
+  const label = `Start Ground = ${slopeDeltaFt.toFixed(1)} ft above End`;
   svg.appendChild(createText(startX + XOFFSET_START, startGroundY - 5, label));
 }

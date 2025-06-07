@@ -1,27 +1,27 @@
-export function computeSag(runFeet, sagPercent) {
-  return (sagPercent / 100) * runFeet;
+export function computeSag(runFt, sagPercent) {
+  return (sagPercent / 100) * runFt;
 }
 
-export function computeVelocity(dropFeet) {
-  const gravityFeetPerSecondSquared = 32.174;
-  return Math.sqrt(2 * gravityFeetPerSecondSquared * dropFeet);
+export function computeVelocity(dropFt) {
+  const gravityFtPerSecondSquared = 32.174;
+  return Math.sqrt(2 * gravityFtPerSecondSquared * dropFt);
 }
 
-export function computeRideTime(runFeet, velocityFeetPerSecond) {
-  return velocityFeetPerSecond > 0 ? runFeet / velocityFeetPerSecond : 0;
+export function computeRideTime(runFt, velocityFtPerSecond) {
+  return velocityFtPerSecond > 0 ? runFt / velocityFtPerSecond : 0;
 }
 
-export function estimateZipline(runFeet, cableDropFeet, sagPercent, seatDropFeet, clearanceFeet) {
-  const sagFeet = computeSag(runFeet, sagPercent);
-  const maxDropFeet = cableDropFeet + sagFeet;
-  const velocityFeetPerSecond = computeVelocity(maxDropFeet);
-  const velocityMilesPerHour = velocityFeetPerSecond * 0.681818;
-  const rideTimeSeconds = computeRideTime(runFeet, velocityFeetPerSecond);
+export function estimateZipline(runFt, cableDropFt, sagPercent, seatDropFt, clearanceFt) {
+  const sagFt = computeSag(runFt, sagPercent);
+  const maxDropFt = cableDropFt + sagFt;
+  const velocityFtPerSecond = computeVelocity(maxDropFt);
+  const velocityMilesPerHour = velocityFtPerSecond * 0.681818;
+  const rideTimeSeconds = computeRideTime(runFt, velocityFtPerSecond);
 
   return {
-    sagFeet,
-    maxDropFeet,
-    velocityFeetPerSecond,
+    sagFt,
+    maxDropFt,
+    velocityFtPerSecond,
     velocityMilesPerHour,
     rideTimeSeconds
   };
